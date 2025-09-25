@@ -1,0 +1,89 @@
+{% block title %}
+  Results
+{% endblock %}
+
+{% block content %}
+  {% if player.round_number < C.NUM_ROUNDS %}
+    {% if not formatted_deal_price %}
+      <p>
+        The negotiation time ran out and you haven't reached an agreement on
+        time.<br>
+        Make sure to come to an agreement before the end of the timer.
+      </p>
+    {% else %}
+      <p>
+        Congratulations, you made a deal at the price
+        of {% formatted_deal_price %}, that translates to profits
+        of {% formatted_profits %}.
+      </p>
+    {% endif %}
+
+    {% if player.round_number > 2 %}
+      <p>
+        You just finished round {{ rounds_count}}. 
+      </p>
+    {% endif %}
+    <br>
+    <p>
+      Click <strong> Next </strong> to go to the next negotiation.
+    </p>
+
+    <br>
+    {% next_button %}
+  {% else %}
+    {% if player.is_single == 1 %}
+
+      {% if not formatted_deal_price %}
+        <p>
+          Sorry, you haven't reached an agreement on time.
+        </p>
+      {% else %}
+        <p>
+          Congratulations, you made your final deal at the price
+          of {% formatted_deal_price %}, that translates to profits
+          of {% formatted_profits %}.
+        </p>
+      {% endif %}
+      <p>
+        Your average profits over all rounds are: Your Cumulative Profits
+        of {% formatted_cumulative_score %} divided by the number of
+        rounds you negotiated (9 non-practice rounds). 
+      </p>
+      <p>
+        As financial compensation for participating in this study, you will receive the average profits
+        across the 9 rounds of {% formatted_AVG_human_profit %}. 
+
+    {% else %}
+      {% if not formatted_deal_price %}
+        <p>
+          Sorry, you haven't reached an agreement on time.
+        </p>
+      {% else %}
+        <p>
+          Congratulations, you made your final deal at the price
+          of {% formatted_deal_price %}, that translates to profits
+          of {% formatted_profits %}.
+        </p>
+      {% endif %}
+
+      <p>
+        Your average profits over all rounds are: Your Cumulative Profits
+        of {% formatted_cumulative_score %} divided by the number of
+        rounds you negotiated. That is {% formatted_AVG_human_profit %}. 
+      </p>
+      <p>
+        The Average profits the Bot made on your behalf was {% formatted_bot_payment %}. 
+      </p>
+        As financial compensation for participating in this study, you will receive the average profits
+        across the 13 rounds of {% formatted_final_payment %}.
+      </p>
+
+      <p>
+        Thank you for participating!
+      </p>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+
+

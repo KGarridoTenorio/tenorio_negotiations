@@ -1,0 +1,9 @@
+.debug_log {
+  height: 800px;
+  overflow-y: scroll;
+}
+
+.log_line {
+  margin-bottom: 0;
+  font-size: larger;
+}

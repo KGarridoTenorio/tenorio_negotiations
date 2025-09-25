@@ -1,0 +1,46 @@
+import re
+from typing import Any, Dict, Union
+
+from otree.api import *
+
+Config = Dict[str, Union[int, str, bool, Dict[str, Any]]]
+
+# TODO Not used?
+ORDINALS = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth',
+            'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth']
+
+
+class RoleConstants(BaseConstants):
+    ROLE_SUPPLIER = 'Supplier'
+    ROLE_BUYER = 'Buyer'
+    ROLES = [ROLE_SUPPLIER, ROLE_BUYER]
+
+    @classmethod
+    def opposite(cls, role: str) -> str:
+        return list(set(cls.ROLES) - {role})[0]
+
+
+class C(RoleConstants):
+    NAME_IN_URL = 'live_bargaining'
+    PLAYERS_PER_GROUP = None
+    NUM_ROUNDS = 10
+    PRACTICE_ROUNDS = 2
+    ACTUAL_ROUNDS = NUM_ROUNDS - PRACTICE_ROUNDS
+    TOTAL_NEGOTIATIONS = 13
+    BOT_NEGOTIATIONS = 4
+    HUMAN_NEGOTIATIONS = TOTAL_NEGOTIATIONS - BOT_NEGOTIATIONS
+
+    TYPE_CHOICES = [
+        ['preference_human', 'HUMAN'],
+        ['preference_bot', 'BOT'],
+    ]
+
+    GROUP_NAME = "live-%s-%s-%s"
+
+    PATTERN_CONSTRAINT = re.compile(r'\[.*?\]')
+    PATTERN_OFFER = re.compile(r'\[([^\]]+)\]')
+
+    PRICE_RANGE = range(1, 15)
+    QUALITY_RANGE = range(0, 5)
+
+    LLM_ERROR = 'No Connection to LLM server'

@@ -1,0 +1,95 @@
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quality Trade-off Table</title>
+        <html lang="en">
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0;
+            }
+            table {
+                width: 60%;
+                border-collapse: collapse;
+                text-align: center;
+                border: 2px solid #444;
+            }
+            thead {
+                background-color: #f4f4f4;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>Quality (Q)</th>
+                    {% if player.is_supplier %}
+                      <th> Production Cost (PC)</th>
+                      <th>Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>{% group.production_cost %} </td>
+                    <td> NP - {% group.production_cost %} </td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td> {% group.production_cost %} + 1 </td>
+                    <td> NP - {% group.production_cost %} - 1 </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>{% group.production_cost %} + 2 </td>
+                    <td> NP - {% group.production_cost %} - 2 </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>{% group.production_cost %} + 3 </td>
+                    <td> NP - {% group.production_cost %} - 3 </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>{% group.production_cost %} + 4</td>
+                    <td> NP - {% group.production_cost %} - 3 </td>
+                </tr>
+            </tbody>
+                    {% else %}
+                    <th> Market Selling Price to Consumer (MP)</th>
+                    <th>Profit</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td>0</td>
+                      <td>{% group.market_price %}</td>
+                      <td> {% group.market_price %} - NP </td>
+                  </tr>
+                  <tr>
+                      <td>1</td>
+                      <td>{% group.market_price %} + 1 </td>
+                      <td> {% group.market_price %} + 1 - NP </td>
+                  </tr>
+                  <tr>
+                      <td>2</td>
+                      <td>{% group.market_price %} + 2 </td>
+                      <td> {% group.market_price %} + 2 - NP </td>
+                  </tr>
+                  <tr>
+                      <td>3</td>
+                      <td>{% group.market_price %} + 3 </td>
+                      <td> {% group.market_price %} + 3 - NP </td>
+                  </tr>
+                  <tr>
+                      <td>4</td>
+                      <td>{% group.market_price %} + 4 </td>
+                      <td> {% group.market_price %} + 4 - NP </td>
+                  </tr>
+              </tbody>
+                    {% endif %}
+        </table>
+    </body>

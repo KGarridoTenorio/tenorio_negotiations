@@ -1,0 +1,29 @@
+{# Can't use 'block styles' apparently #}
+<link rel="stylesheet" type="text/css"
+      href="{% static "live_bargaining/css/admin_report.css" %}"/>
+
+<br/>
+<h5>
+  ROUND {% actual_round_number %} PREF ROLE {% preference_role %}
+  &nbsp;<button type="button" onclick="do_refresh()">Refresh</button>
+</h5>
+<br/>
+
+<div class="debug_log">
+  {% for log_line in session_log_lines %}
+    <pre class="log_line">{% log_line %}</pre>
+  {% endfor %}
+  {% if session_log_lines %}
+    <br/>
+  {% endif %}
+
+  {% for log_line in log_lines %}
+    <pre class="log_line">{% log_line %}</pre>
+  {% endfor %}
+</div>
+
+{# Can't use 'block scripts' apparently #}
+<script>
+  var actual_round_number = {% actual_round_number %};
+</script>
+<script src="{% static 'live_bargaining/js/admin_report.js' %}"></script>

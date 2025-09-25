@@ -1,0 +1,49 @@
+{% block title %}
+  Preference
+{% endblock %}
+
+{% block content %}
+  <div class="card bg-light m-3">
+    <div class="card-body">
+      <br>
+
+      {% if player.is_odd_session %}
+        {% if player.is_supplier %}
+          <p>
+            You have the power to decide which type of counterpart to negotiate
+            with on the next round.
+          </p>
+        {% elif player.is_buyer %}
+          <p>
+            Please fill in your preference, but you this choice is not
+            considered when matching you with a counterpart.
+          </p>
+        {% endif %}
+      {% else %}
+        {% if player.is_buyer %}
+          <p>
+            You have the power to decide which type of counterpart to negotiate
+            with on the next round.
+          </p>
+        {% elif player.is_supplier %}
+          <p>
+            Please fill in your preference, but you this choice is not
+            considered when matching you with a counterpart.
+          </p>
+        {% endif %}
+      {% endif %}
+
+      {% formfield 'preference' label="" %}
+
+      {% if not session.config.use_bots %}
+        <br>
+        <h5>
+          Your preference is recorded, but your opponent will be human.
+        </h5>
+      {% endif %}
+
+      <br>
+      {% next_button %}
+    </div>
+  </div>
+{% endblock %}

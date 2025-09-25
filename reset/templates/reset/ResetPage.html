@@ -1,0 +1,15 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Reset the Session Counter
+{% endblock %}
+
+{% block content %}
+    <h4>This will clear the session counter!</h4>
+    <h4>Don't do this while collecting data over multiple sessions!</h4>
+    {% formfields %}
+
+    <br/>
+    {% next_button %}
+{% endblock %}

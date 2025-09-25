@@ -1,0 +1,210 @@
+import asyncio
+import random
+from typing import Any, List, Union
+
+from .bot_base import BotBase
+from .offer import (Offer, ACCEPT, OFFER_QUALITY, OFFER_PRICE,
+                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE)
+from .constants import C
+from .pareto import pareto_efficient_string
+from .prompts import (PROMPTS, not_profitable_prompt, empty_offer_prompt,
+                      offer_without_price_prompt, offer_without_quality_prompt,
+                      offer_invalid)
+
+
+class BotStrategy(BotBase):
+    def initial(self):
+        if self.role == C.ROLE_BUYER:
+            message = PROMPTS['first_message_PC']
+        else:
+            message = PROMPTS['first_message_MP']
+        self.store_send_data(llm_output=message)
+
+    async def follow_up(self):
+        # loops is the count of user chats (zero-based)
+        loops = sum(i['role'] == 'user' for i in self.interaction_list) - 1
+        if loops == 0:
+            await self.constraint_initial()
+            return
+        elif self.constraint_user is None:
+            await self.constraint_final()
+            return
+
+        # Extract possible offer, add to the list if valid
+        self.offer_user = await self.interpret_offer(self.user_message)
+        self.offer_list.append(self.offer_user)
+        await self.evaluate()
+
+    async def interface_offer(self):
+        # Offer already added to the list in Player.process_offer()
+        self.offer_user = self.offer_list[-1]
+
+        # Evaluate the profitability of user offer and respond
+        await self.evaluate()
+
+    async def constraint_initial(self):
+        constraint_user = await self.interpret_constraints(self.user_message)
+        context_constraint = PROMPTS['context_constraint'][self.role]
+
+        if self.constraint_in_range(constraint_user):
+            params = (constraint_user, context_constraint) * 2
+            message = PROMPTS['constraint_confirm'] % params
+            bot_vars = {'initial_constraint': constraint_user}
+            self.store_send_data(llm_output=message, bot_vars=bot_vars)
+        else:
+            message = PROMPTS['constraint_clarify'] % context_constraint
+            self.store_send_data(llm_output=message)
+
+    async def constraint_final(self):
+        constraint_user = await self.interpret_constraints(self.user_message)
+
+        if self.constraint_in_range(constraint_user):
+            if self.role == C.ROLE_BUYER:
+                message = PROMPTS['constraint_final_supplier']
+                final_constraint = constraint_user
+            else:
+                message = PROMPTS['constraint_final_buyer']
+                final_constraint = constraint_user
+        else:
+            if self.role == C.ROLE_BUYER:
+                message = PROMPTS['constraint_persist_final_supplier']
+            else:
+                message = PROMPTS['constraint_persist_final_buyer']
+            final_constraint = self.constant_draw_constraint()
+
+        bot_vars = {'final_constraint': final_constraint}
+        self.store_send_data(llm_output=message, bot_vars=bot_vars)
+
+    async def evaluate(self):
+        # Add profits for user and bot to the offers
+        for offer in self.offer_list:
+            self.add_profits(offer)
+
+        greedy = self.get_greediness(self.constraint_user, self.constraint_bot)
+        self.offers_pareto_efficient = pareto_efficient_string(
+            self.constraint_user, self.constraint_bot, self.role)
+
+        # Evaluate the profitability of user offer and respond
+        evaluation = self.offer_user.evaluate(greedy)
+
+        if evaluation == ACCEPT:
+            await self.accept_offer()
+        elif evaluation in (NOT_PROFITABLE, OFFER_PRICE, OFFER_QUALITY):
+            await self.respond_to_offer(evaluation, greedy)
+        elif evaluation in (INVALID_OFFER, NOT_OFFER):
+            await self.respond_to_non_offer(evaluation, greedy)
+        else:
+            raise Exception
+
+    async def accept_offer(self):
+        if self.offer_user.from_chat:
+            content = PROMPTS['accept_from_chat'] + self.user_message
+        else:
+            content = PROMPTS['accept_from_interface'] + self.user_message
+
+        response = await self.get_llm_response(content)
+        llm_output = self.extract_content(response)
+        self.store_send_data(llm_output=llm_output)
+
+        if self.offer_user.from_chat:
+            await self.accept_final_chat()
+        else:
+            await self.accept_final_interface()
+
+    async def accept_final_chat(self):
+        await asyncio.sleep(4)
+        # Create offer matching offer for user to accept
+        bot_offer = Offer(idx=-1,
+                          price=self.offer_user.price,
+                          quality=self.offer_user.quality,
+                          test="accept_final_chat")
+        self.add_profits(bot_offer)
+        self.offer_list.append(bot_offer)
+        self.store_send_data()
+
+    async def accept_final_interface(self):
+        await asyncio.sleep(4)
+        # Accept on the model
+        player, participant = self.get_player_participant()
+        player.process_accept(self.offer_user.price, self.offer_user.quality)
+        # Accept in the interface
+        self.send_asyncio_data({'finished': True})
+
+    def get_respond_prompt(self, evaluation: str) -> str:
+        if evaluation == NOT_OFFER:
+            return empty_offer_prompt(
+                self.config, self.user_message,
+                self.offers_pareto_efficient, str(self.interaction_list))
+        elif evaluation == OFFER_QUALITY:
+            return offer_without_price_prompt(
+                self.config, self.user_message,
+                self.offers_pareto_efficient, str(self.interaction_list))
+        elif evaluation == OFFER_PRICE:
+            return offer_without_quality_prompt(
+                self.config, self.user_message,
+                self.offers_pareto_efficient, str(self.interaction_list))
+        elif evaluation == INVALID_OFFER:
+            return offer_invalid(self.config, self.user_message)
+        else:
+            return not_profitable_prompt(
+                self.config, self.user_message,
+                self.offers_pareto_efficient, str(self.interaction_list))
+
+    async def respond_to_offer(self, evaluation: str, greedy: int):
+        content1 = self.get_respond_prompt(evaluation)
+        content2 = self.get_respond_prompt("From_0")
+
+        llm_offers = []
+        last_offer = llm_output = None
+        while len(llm_offers) < 3 and evaluation != ACCEPT:
+            response = await self.get_llm_response(content1)
+            llm_output = self.extract_content(response)
+            last_offer = await self.interpret_offer(llm_output, -1)
+            if not last_offer or not last_offer.is_complete:
+                response = await self.get_llm_response(content2)
+                llm_output = self.extract_content(response)
+                last_offer = await self.interpret_offer(llm_output, -1)
+
+            if last_offer.is_complete:
+                self.add_profits(last_offer)
+            else:
+                last_offer.profit_bot = last_offer.profit_user = 0
+            llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+            evaluation = last_offer.evaluate(greedy)
+
+        self.send_response(evaluation, last_offer, llm_output, llm_offers)
+
+    async def respond_to_non_offer(self, evaluation: str, greedy: int):
+        content1 = self.get_respond_prompt(evaluation)
+        content2 = self.get_respond_prompt("From_0")
+
+        llm_offers = []
+        last_offer = llm_output = None
+
+        while len(llm_offers) < 3 and evaluation != ACCEPT:
+            response = await self.get_llm_response(
+                content1 if len(llm_offers) < 3 else content2)
+            llm_output = self.extract_content(response)
+            last_offer = await self.interpret_offer(llm_output, -1)
+
+            if last_offer.is_complete:
+                self.add_profits(last_offer)
+            else:
+                last_offer.profit_bot = last_offer.profit_user = 0
+            llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+            evaluation = last_offer.evaluate(greedy)
+
+        self.send_response(evaluation, last_offer, llm_output, llm_offers)
+
+    def send_response(self, evaluation: str, last_offer: Offer,
+                      llm_output: str, llm_offers: List[List[Union[int, Any]]]):
+        if evaluation != ACCEPT:
+            max_profit = max(llm_offer[0] for llm_offer in llm_offers)
+            best_offer = random.choice([llm_offer for llm_offer in llm_offers
+                                        if llm_offer[0] == max_profit])
+            _, llm_output, last_offer = best_offer
+
+        if last_offer is not None and last_offer.is_valid:
+            self.offer_list.append(last_offer)
+        if llm_output is not None:
+            self.store_send_data(llm_output=llm_output)

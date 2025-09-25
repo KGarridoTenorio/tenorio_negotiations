@@ -1,0 +1,177 @@
+{% block styles %}
+  <link rel="stylesheet" type="text/css"
+        href="{% static "live_bargaining/css/bargain.css" %}"/>
+  <style>
+    .params {
+      font-family: monospace, monospace;
+      text-transform: capitalize;
+    }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'test/js/bargain.js' %}"></script>
+{% endblock %}
+
+{% block title %}
+  Test
+{% endblock %}
+
+{% block content %}
+  <div class="image-container">
+    <img src="{% static 'test/image/Pellet.jpg' %}"
+         alt="Pellet Bag" width="240" align="right">
+  </div>
+  <p>
+    You will be negotiating with an <strong>AI BOT</strong>
+    counterpart on two items Price <strong>(NP)</strong> & Quality
+    <strong>(Q)</strong>.
+  </p>
+
+  <p>
+    The item of negotiation is a 10kg Pellet Bag:
+  </p>
+  <p>
+    Your goal is to negotiate the best deal to maximize your own profits.
+  </p>
+  <p>
+    Do NOT make future promises this is a one-time negotiation.
+  </p>
+  <p>
+    You will play the role of a <strong> {% human_role %}</strong>.
+  </p>
+
+  {% include_sibling 'table.html' %}
+
+  <br/>
+  {% if human_role == 'Supplier' %}
+    <p>
+      Your Production cost is <strong>  {% production_cost %} €</strong>. Every
+      unit of Quality increases your Production Costs by one.<br/>
+      In other words, higher quality is more expensive for you to produce.
+    </p>
+  {% else %}
+    <p>
+      Your Market Selling Price to the Consumer is {% market_price %}.<br/>
+      For every unit of Quality the Market Selling Price to the Consumer will
+      increase by one.
+    </p>
+  {% endif %}
+  <br/>
+
+  <h5>
+    <span class="params">Human: <span id="human_role_output">
+      {% human_role %}
+    </span></span>&nbsp;&nbsp;
+    <span class="params">Cost: <span id="production_cost_output">
+      {% production_cost %}
+    </span></span>&nbsp;&nbsp;
+    <span class="params">Market: <span id="market_price_output">
+      {% market_price %}
+    </span></span>
+    <span class="params">&nbsp;Max greedy: <span id="max_greedy_output">
+      {% max_greedy %}
+    </span></span>
+    <button type="button" class="otree-btn-next btn btn-primary"
+            style="float: right;margin-top: -20px;width: 250px;"
+            onclick="startReset()">
+      Restart
+    </button>
+  </h5>
+
+  <div class='otree-chat'>
+    <div class='otree-chat__messages' id='chat-output'></div>
+    <input type="text" id="chat-input" class="otree-chat__input" size="52">
+    <button type="button" onclick="sendMessage()" id="btn-chat"
+            class="otree-chat__btn-send">
+      Send
+    </button>
+  </div>
+  <br>
+
+  <table class="table">
+    <tr>
+      <th>Your current proposal</th>
+      <td class="high-br">Price<br>Quality</td>
+      <td class="high-br" id="my-proposal">{% player.proposal %}</td>
+      <td style="width: 200px;">
+        <input type="number" id="myPrice" min="0">
+        <br>
+        <input type="range" id="myQuality" min="0" max="4" value="2">
+        <span id="myQualityOut"></span>
+      </td>
+
+      <td>
+        <button type="button" onclick="sendOffer()" id="btn-offer">
+          Make new offer
+        </button>
+      </td>
+    </tr>
+    <tr>
+      <th>{% player.other.role %} proposal</th>
+      <td>Price<br>Quality</td>
+      <td id="other-proposal">{% player.other.proposal %}</td>
+      <td></td>
+      <td>
+        <button type="button" id="btn-accept" onclick="sendAccept()"
+                style="display: none">
+          Accept
+        </button>
+      </td>
+    </tr>
+  </table>
+
+  <div id="offers" class='otree-chat' style="height: 250px;"></div>
+  <div id="interactions" class='otree-chat' style="height: 500px;"></div>
+
+  <div class="modal fade" id="restartModal" tabindex="-1"
+       data-bs-backdrop="static"
+       aria-labelledby="restartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="restartModalLabel">
+            <b><span>Restart with the following parameters</span></b>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5>Human role</h5>
+          <input type="radio" id="Supplier" name="human_role"
+                 value="Supplier">
+          <label for="Supplier">Supplier</label><br>
+          <input type="radio" id="Buyer" name="human_role" value="Buyer">
+          <label for="Buyer">Buyer</label><br>
+
+          <br>
+          <label for="cost-select">Choose production cost:</label><br>
+          <select name="production_cost" id="cost-select">
+            <option value="">--Please choose an option--</option>
+          </select>
+
+          <br><br>
+          <label for="market-select">Choose market price:</label><br>
+          <select name="market_price" id="market-select">
+            <option value="">--Please choose an option--</option>
+          </select>
+
+          <br><br>
+          <label for="greedy-select">Max greedy:</label><br>
+          <select name="max_greedy" id="greedy-select">
+            <option value="">--Please choose an option--</option>
+            <option value="true">True (max)</option>
+            <option value="false">False (min)</option>
+          </select>
+
+          <br><br><br>
+          <button type="button" class="otree-btn-next btn btn-primary"
+                  onclick="sendReset()">
+            Restart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

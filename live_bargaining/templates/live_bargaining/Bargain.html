@@ -1,0 +1,233 @@
+{% block styles %}
+  <link rel="stylesheet" type="text/css"
+        href="{% static "live_bargaining/css/bargain.css" %}"/>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'live_bargaining/js/bargain.js' %}"></script>
+{% endblock %}
+
+{% block title %}
+  <p>
+    You are the <strong>{% player.role %}</strong>
+  </p>
+{% endblock %}
+
+{% block content %}
+  <h4 class="time-left">
+    Time left <span class="otree-timer__time-left"></span>
+  </h4>
+
+  {% if player.round_number == 1 %}
+    <h5>
+      <span style="color: green;">CONGRATULATIONS!</span> You passed the
+      Comprehension Check. This is your first Practice Round.
+    </h5>
+    <br/>
+
+    <h5>IMPORTANT to read! - How to use the Interface? </h5>
+    <p>
+      Agreements made through the chat are non-binding (not final).
+      <br> Only those offers <strong>sent/confirmed through the
+      interface</strong> are binding. <br>
+      Once you reach an agreement, use the <strong>"CONFIRM"</strong> button to
+      <strong> seal the deal </strong> (finish the negotiation).
+      <br>
+      - Note: This button only appears when the counterpart is ready to accept
+      the offer.
+    </p>
+    {% if player.is_supplier %}
+      <p>
+        Please negotiate with the
+        <strong>
+          {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
+        </strong> Retailer via chat (Write your message in the <strong>"type
+        here..."</strong> box).
+        <br> -> You can only send binding offers through "Your current
+        proposal":
+          <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
+          <br>     &emsp; &emsp;2nd Click <strong>Send New Offer</strong>
+      <p>
+        Example: Do NOT accept a Wholesale Price (<strong>w</strong>) below
+        your Production Cost (<strong>PC</strong>) of {% group.production_cost %}€. 
+        Otherwise, you don't make a PROFIT.
+      </p>
+    {% else %}
+      <p>
+        Please negotiate with the
+        <strong>
+          {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
+        </strong> Supplier via chat (Write your message in the <strong>"type
+        here..."</strong> box).
+        <br> -> You can only send binding offers through "Your current
+        proposal":
+          <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
+          <br>     &emsp; &emsp;2nd Click <strong>Send New Offer</strong>
+      <p>
+        Example: Do NOT accept a wholesale price (w) above the Retail Price 
+        of {% group.market_price %}€. Otherwise, you don't make a PROFIT.
+      </p>
+    {% endif %}
+    <p>
+      {% if player.is_supplier %}
+        <strong>The Production Cost (PC) is {% group.production_cost %}€. </strong>
+        <strong>The Retail Price (RP) is {% group.market_price %}€. </strong>
+      {% else %}
+        <strong>The Retail Price (RP) is {% group.market_price %}€.</strong>
+        <strong>The Production Cost (PC) is {% group.production_cost %}€. </strong>
+      {% endif %}
+    </p>
+    <h4>Chat</h4>
+    <div class='otree-chat'>
+      <div class='otree-chat__messages' id='chat-output'></div>
+      <input type="text" id="chat-input" class="otree-chat__input" size="52"
+             placeholder="Type here...">
+      <button type="button" onclick="sendMessage()" id="btn-chat"
+              class="otree-chat__btn-send">
+        Send
+      </button>
+    </div>
+    <br>
+    <h3>Interface</h3>
+    <table class="table" style="border: 1px solid black;">
+      <tr>
+        <th>{% player.other.role %} proposal</th>
+        <td>Price<br>Quantity</td>
+        <td id="other-proposal">{% player.other.proposal %}</td>
+        <td></td>
+        <td>
+          <button type="button" id="btn-accept" onclick="sendAccept()"
+                  style="display: none">
+            Confirm
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <th>Your current proposal</th>
+        <td class="high-br">Price<br>Quantity</td>
+        <td class="high-br" id="my-proposal">{% player.proposal %}</td>
+        <td style="width: 200px;">
+          <input type="number" id="myPrice" placeholder="Enter price" style="width: 100px;">
+          <input type="number" id="myQuality" placeholder="Enter quantity" style="width: 100px;">
+        </td>
+        <td>
+          <button type="button" onclick="sendOffer()" id="btn-offer">
+            Send new offer
+          </button>
+        </td>
+      </tr>
+    </table>
+
+  {% else %}
+    <p>
+      {% if player.is_supplier %}
+      <strong>The Production Cost (PC) is {% group.production_cost %}€. </strong>
+      <strong>The Retail Price (RP) is {% group.market_price %}€. </strong>
+      {% else %}
+      <strong>The Retail Price (RP) is {% group.market_price %}€. </strong>
+      <strong>The Production Cost (PC) is {% group.production_cost %}€. </strong>
+      {% endif %}
+    </p>
+
+    <h4>Chat</h4>
+    <div class='otree-chat'>
+      <div class='otree-chat__messages' id='chat-output'></div>
+      <input type="text" id="chat-input" class="otree-chat__input" size="52"
+             placeholder="Type here...">
+      <button type="button" onclick="sendMessage()" id="btn-chat"
+              class="otree-chat__btn-send">
+        Send
+      </button>
+    </div>
+    <br>
+    <h3>Interface</h3>
+    <table class="table" style="border: 1px solid black;">
+      <tr>
+        <th>{% player.other.role %} proposal</th>
+        <td>Price<br>Quantity</td>
+        <td id="other-proposal">{% player.other.proposal %}</td>
+        <td></td>
+        <td>
+          <button type="button" id="btn-accept" onclick="sendAccept()"
+                  style="display: none">
+            Confirm
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <th>Your current proposal</th>
+        <td class="high-br">Price<br>Quantity</td>
+        <td class="high-br" id="my-proposal">{% player.proposal %}</td>
+        <td style="width: 200px;">
+          <input type="number" id="myPrice" placeholder="Enter price" style="width: 100px;">
+          <input type="number" id="myQuality" placeholder="Enter quantity" style="width: 100px;">
+        </td>
+        <td>
+          <button type="button" onclick="sendOffer()" id="btn-offer">
+            Send new offer
+          </button>
+        </td>
+      </tr>
+    </table>
+
+    <h5>IMPORTANT! How to use the Interface? </h5>
+    <p>
+      Agreements made through the chat are non-binding (not final).
+      <br> Only those offers <strong>sent/confirmed through the
+      interface</strong> are binding. <br>
+      Once you reach an agreement, use the <strong>"CONFIRM"</strong> button to
+      <strong> seal the deal </strong> (finish the negotiation).
+      <br>
+      - Note: This button only appears when the counterpart is ready to accept
+      the offer.
+    </p>
+    {% if player.is_supplier %}
+      <p>
+        Please negotiate with the
+        <strong>
+          {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
+        </strong> Retailer via chat (Write your message in the <strong>"type
+        here..."</strong> box).
+        <br> -> You can only send binding offers through "Your current
+        proposal":
+        {% if player.bot_opponent %}
+          <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
+          &
+          Quality offer.
+          <br>     &emsp; &emsp;2nd Introduce a Price and Quantity combination
+          <br>     &emsp; &emsp;3rd Click <strong>Send New Offer</strong>
+        {% else %}
+          <br>     &emsp; &emsp;1st Introduce a Price and Quantity combination
+          <br>     &emsp; &emsp;2nd Click <strong>Send New Offer</strong>
+        {% endif %}
+        <p>
+          Example: Do NOT accept a Wholesale Price (<strong>w</strong>) below
+          your Production Cost (<strong>PC</strong>)
+          of {% group.production_cost %}€. Otherwise, you don't make a PROFIT.
+        </p>
+    {% else %}
+      <p>
+        Please negotiate with the
+        <strong>
+          {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
+        </strong> Supplier via chat (Write your message in the <strong>"type
+        here..."</strong> box).
+        <br> -> You can only send binding offers through "Your current
+        proposal":
+        {% if player.bot_opponent %}
+          <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
+          &
+          Quality offer.
+          <br>     &emsp; &emsp;2nd Introduce a Price and Quantity combination
+          <br>     &emsp; &emsp;3rd Click <strong>Send New Offer</strong>
+        {% else %}
+          <br>     &emsp; &emsp;1st Introduce a Price and Quantity combination
+          <br>     &emsp; &emsp;2nd Click <strong>Send New Offer</strong>
+        {% endif %}
+      <p>
+        Example: Do NOT accept a wholesale price (w) above the Retail
+        Price of {% group.market_price %}€. Otherwise, you don't make a PROFIT.
+      </p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

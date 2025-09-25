@@ -1,0 +1,28 @@
+{% extends 'otree/WaitPage.html' %}
+
+{% block title %}
+  {% title_text %}
+{% endblock %}
+
+{% block content %}
+  Waiting for the other participants to be ready...
+  {% if player.round_number in (1, 2) %}
+    <p>
+      <br>
+      (PRACTICE ROUND {% player.round_number %} of 2)
+      <br>
+    </p>
+  {% else %}
+    <p>
+      {% if round_of %}
+        <br>
+        {% round_of %}
+        <br>
+      {% endif %}
+      <br>
+      {% this_is %}
+    </p>
+  {% endif %}
+{% endblock %}
+
+
