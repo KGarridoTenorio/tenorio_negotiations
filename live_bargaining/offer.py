@@ -73,8 +73,9 @@ class Offer(dict):
         if self.quality is None:
             self.quality = offer_list.last_valid_quality(idx)
             if self.enhanced is not None:
-                self.enhanced += ' '
-            self.enhanced = 'quality'
+                self.enhanced += ' quality'
+            else:
+                self.enhanced = 'quality'
 
     def profits(self, bot_role: str, constraint_user: int, constraint_bot: int):
         """ This calculates the profits for the user and the bot """
