@@ -42,5 +42,7 @@ class C(RoleConstants):
 
     PRICE_RANGE = range(1, 15)
     QUALITY_RANGE = range(0, 100)
+    DEMAND_MIN = min(QUALITY_RANGE)
+    DEMAND_MAX = max(QUALITY_RANGE)
 
     LLM_ERROR = 'No Connection to LLM server'
