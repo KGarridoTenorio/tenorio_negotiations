@@ -83,8 +83,8 @@ class Offer(dict):
             self.profit_user = -10
             return
 
-        args_bot = (self.price, self.quality, constraint_bot)
-        args_user = (self.price, self.quality, constraint_user)
+        args_bot = (self.price, self.quality, constraint_bot, C.DEMAND_MIN, C.DEMAND_MAX)
+        args_user = (self.price, self.quality, constraint_user, C.DEMAND_MIN, C.DEMAND_MAX)
 
         if bot_role == C.ROLE_SUPPLIER:
             self.profit_bot = self.profit_supplier(*args_bot)
@@ -108,14 +108,24 @@ class Offer(dict):
             return INVALID_OFFER
         else:
             return NOT_OFFER
+        
+    @staticmethod
+    def expected_demand(quality: int, demand_min: int, demand_max: int) -> float:
+        if quality <= demand_min:
+            return quality
+        if quality >= demand_max:
+            return (demand_min + demand_max) / 2
+        return ((quality ** 2 - demand_min * demand_min) / 2 + quality * (demand_max - quality)) / (demand_max - demand_min)
 
     @staticmethod
-    def profit_supplier(price: int, quality: int, production_cost: int) -> int:
-        return price - production_cost - quality
+    def profit_supplier(price: int, quality: int, production_cost: int, demand_min: int, demand_max: int) -> float:
+        expected_sales = Offer.expected_demand(quality, demand_min, demand_max)
+        return (price * expected_sales) - (production_cost * quality)
 
     @staticmethod
-    def profit_buyer(price: int, quality: int, market_price: int) -> int:
-        return market_price - price + quality
+    def profit_buyer(price: int, quality: int, market_price: int, demand_min: int, demand_max: int) -> float:
+        expected_sales = Offer.expected_demand(quality, demand_min, demand_max)
+        return (market_price - price) * expected_sales
 
 
 class OfferList(list):
