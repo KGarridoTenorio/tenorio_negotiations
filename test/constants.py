@@ -17,6 +17,6 @@ class C(RoleConstants):
     PATTERN_OFFER = re.compile(r'\[([^\]]+)\]')
 
     PRICE_RANGE = (1, 13)
-    QUALITY_RANGE = (0, 5)
+    QUALITY_RANGE = (0, 100)
 
     LLM_ERROR = 'No Connection to LLM server'
