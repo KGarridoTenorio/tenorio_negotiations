@@ -6,10 +6,10 @@ from .bot_base import BotBase
 from .offer import (Offer, ACCEPT, OFFER_QUALITY, OFFER_PRICE,
                     NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE)
 from .constants import C
-from .pareto import pareto_efficient_string
 from .prompts import (PROMPTS, not_profitable_prompt, empty_offer_prompt,
                       offer_without_price_prompt, offer_without_quality_prompt,
                       offer_invalid)
+from .optimal import optimal_solution_string
 
 
 class BotStrategy(BotBase):
@@ -81,11 +81,12 @@ class BotStrategy(BotBase):
             self.add_profits(offer)
 
         greedy = self.get_greediness(self.constraint_user, self.constraint_bot)
-        self.offers_pareto_efficient = pareto_efficient_string(
-            self.constraint_user, self.constraint_bot, self.role)
 
         # Evaluate the profitability of user offer and respond
         evaluation = self.offer_user.evaluate(greedy)
+
+        self.optimal_offer = optimal_solution_string(
+            self.constraint_user, self.constraint_bot, evaluation, self.offer_user)
 
         if evaluation == ACCEPT:
             await self.accept_offer()
@@ -134,21 +135,21 @@ class BotStrategy(BotBase):
         if evaluation == NOT_OFFER:
             return empty_offer_prompt(
                 self.config, self.user_message,
-                self.offers_pareto_efficient, str(self.interaction_list))
+                self.optimal_offer, str(self.interaction_list))
         elif evaluation == OFFER_QUALITY:
             return offer_without_price_prompt(
                 self.config, self.user_message,
-                self.offers_pareto_efficient, str(self.interaction_list))
+                self.optimal_offer, str(self.interaction_list))
         elif evaluation == OFFER_PRICE:
             return offer_without_quality_prompt(
                 self.config, self.user_message,
-                self.offers_pareto_efficient, str(self.interaction_list))
+                self.optimal_offer, str(self.interaction_list))
         elif evaluation == INVALID_OFFER:
             return offer_invalid(self.config, self.user_message)
         else:
             return not_profitable_prompt(
                 self.config, self.user_message,
-                self.offers_pareto_efficient, str(self.interaction_list))
+                self.optimal_offer, str(self.interaction_list))
 
     async def respond_to_offer(self, evaluation: str, greedy: int):
         content1 = self.get_respond_prompt(evaluation)

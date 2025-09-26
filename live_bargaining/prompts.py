@@ -34,56 +34,56 @@ def system_final_prompt(config: Config):
 
 def empty_offer_prompt(config: Config,
                        user_message: str,
-                       offers_pareto_efficient: str,
+                       optimal_offer: str,
                        interactions: str) -> str:
     bot_role = config['roles']['bot_role']
     prompts = PROMPTS[bot_role]
     return (prompts['follow_up_prompt_without_offer'] +
             user_message + ' ' +
             prompts['non_profitable_offer_or_deal'] +
-            offers_pareto_efficient + '\n' +
+            optimal_offer + '\n' +
             prompts['follow_up_conversation'] +
             interactions)
 
 
 def offer_without_quality_prompt(config: Config,
                                  user_message: str,
-                                 offers_pareto_efficient: str,
+                                 optimal_offer: str,
                                  interactions: str) -> str:
     bot_role = config['roles']['bot_role']
     prompts = PROMPTS[bot_role]
     return (prompts['follow_up_prompt_without_quality'] +
             user_message + ' ' +
             prompts['non_quality_offer'] +
-            offers_pareto_efficient + '\n' +
+            optimal_offer + '\n' +
             prompts['follow_up_conversation'] +
             interactions)
 
 
 def offer_without_price_prompt(config: Config,
                                user_message: str,
-                               offers_pareto_efficient: str,
+                               optimal_offer: str,
                                interactions: str) -> str:
     bot_role = config['roles']['bot_role']
     prompts = PROMPTS[bot_role]
     return (prompts['follow_up_prompt_without_price'] +
             user_message + ' ' +
             prompts['non_price_offer'] +
-            offers_pareto_efficient + '\n' +
+            optimal_offer + '\n' +
             prompts['follow_up_conversation'] +
             interactions)
 
 
 def not_profitable_prompt(config: Config,
                           user_message: str,
-                          offers_pareto_efficient: str,
+                          optimal_offer: str,
                           interactions: str) -> str:
     bot_role = config['roles']['bot_role']
     prompts = PROMPTS[bot_role]
     return (prompts['follow_up_prompt_2nd'] +
             user_message + ' ' +
             prompts['non_profitable_offer'] +
-            offers_pareto_efficient + '\n' +
+            optimal_offer + '\n' +
             prompts['follow_up_conversation'] +
             interactions)
 
