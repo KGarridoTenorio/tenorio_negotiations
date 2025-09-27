@@ -6,7 +6,6 @@ from otree.models import Participant, Session
 
 from .constants import C, Config
 from .offer import Offer, OfferList
-from .pareto import pareto_efficient_offer
 
 
 class InteractionList(list):
