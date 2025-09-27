@@ -28,7 +28,7 @@ class BotBase:
         self.offer_user: Optional[Offer] = None
         self.interaction_list: Optional[InteractionList] = None
         self.offer_list: Optional[OfferList] = None
-        self.offers_pareto_efficient = None
+        self.optimal_offer = None
 
         # The Player must be able to set these, but they will be ignored
         self.price_proposed = None
@@ -64,13 +64,6 @@ class BotBase:
         participant = db.query(
             Participant).filter_by(code=self.config['code']).one()
         return participant._get_current_player(), participant
-
-    def get_greediness(self, constraint_user: int, constraint_bot: int) -> int:
-        if constraint_user not in (0, None):
-            return pareto_efficient_offer(constraint_user, constraint_bot,
-                                          self.role, self.config['max_greedy'])
-        else:
-            return self.config['default_greedy']
 
     def constraint_in_range(self, constraint_user: Optional[int]) -> bool:
         if constraint_user is None:

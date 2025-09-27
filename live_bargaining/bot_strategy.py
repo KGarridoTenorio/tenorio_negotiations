@@ -80,10 +80,8 @@ class BotStrategy(BotBase):
         for offer in self.offer_list:
             self.add_profits(offer)
 
-        greedy = self.get_greediness(self.constraint_user, self.constraint_bot)
-
         # Evaluate the profitability of user offer and respond
-        evaluation = self.offer_user.evaluate(greedy)
+        evaluation = self.offer_user.evaluate()
 
         self.optimal_offer = optimal_solution_string(
             self.constraint_user, self.constraint_bot, evaluation, self.offer_user)
@@ -91,9 +89,9 @@ class BotStrategy(BotBase):
         if evaluation == ACCEPT:
             await self.accept_offer()
         elif evaluation in (NOT_PROFITABLE, OFFER_PRICE, OFFER_QUALITY):
-            await self.respond_to_offer(evaluation, greedy)
+            await self.respond_to_offer(evaluation)
         elif evaluation in (INVALID_OFFER, NOT_OFFER):
-            await self.respond_to_non_offer(evaluation, greedy)
+            await self.respond_to_non_offer(evaluation)
         else:
             raise Exception
 
@@ -151,7 +149,7 @@ class BotStrategy(BotBase):
                 self.config, self.user_message,
                 self.optimal_offer, str(self.interaction_list))
 
-    async def respond_to_offer(self, evaluation: str, greedy: int):
+    async def respond_to_offer(self, evaluation: str):
         content1 = self.get_respond_prompt(evaluation)
         content2 = self.get_respond_prompt("From_0")
 
@@ -171,11 +169,11 @@ class BotStrategy(BotBase):
             else:
                 last_offer.profit_bot = last_offer.profit_user = 0
             llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate(greedy)
+            evaluation = last_offer.evaluate()
 
         self.send_response(evaluation, last_offer, llm_output, llm_offers)
 
-    async def respond_to_non_offer(self, evaluation: str, greedy: int):
+    async def respond_to_non_offer(self, evaluation: str):
         content1 = self.get_respond_prompt(evaluation)
         content2 = self.get_respond_prompt("From_0")
 
@@ -193,7 +191,7 @@ class BotStrategy(BotBase):
             else:
                 last_offer.profit_bot = last_offer.profit_user = 0
             llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate(greedy)
+            evaluation = last_offer.evaluate()
 
         self.send_response(evaluation, last_offer, llm_output, llm_offers)
 

@@ -94,8 +94,8 @@ class Offer(dict):
             self.profit_bot = self.profit_buyer(*args_bot)
             self.profit_user = self.profit_supplier(*args_user)
 
-    def evaluate(self, greedy: int) -> str:
-        if self.profit_bot >= greedy:
+    def evaluate(self) -> str:
+        if self.profit_bot >= self.profit_user:
             return ACCEPT
         elif self.is_valid:
             return NOT_PROFITABLE
