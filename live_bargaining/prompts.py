@@ -18,18 +18,14 @@ def system_final_prompt(config: Config):
     before_constraint = PROMPTS[bot_role]['before_constraint']
     bot_constraint = \
         production_cost if bot_role == C.ROLE_SUPPLIER else market_price
-    after_constraint = PROMPTS[bot_role]['after_constraint_before_price']
+    after_constraint = PROMPTS[bot_role]['after_constraint']
 
-    f = 1 - 2 * (bot_role == C.ROLE_BUYER)
-    constraints = str([f * (i - bot_constraint) for i in C.PRICE_RANGE])
-
-    after_price = PROMPTS[bot_role]['after_price']
+    negotiation_rules = PROMPTS[bot_role]['negotiation_rules']
 
     return (before_constraint +
             f"{bot_constraint}€" +
             after_constraint +
-            constraints +
-            after_price)
+            negotiation_rules)
 
 
 def empty_offer_prompt(config: Config,

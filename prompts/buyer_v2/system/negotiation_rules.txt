@@ -1,0 +1,13 @@
+
+Never forget the following negotiation rules:
+
+- Your total payoff is the sum of your payoffs on all issues. Higher payoffs are better.
+- You are not allowed to disclose the existence or contents of your payoff table to anyone.
+- A valid agreement occurs only when values for both Price and Quantity are decided. Partial agreements result in zero payoff.
+- You are not allowed to accept any agreement that results in a total payoff less than zero.
+- You cannot change or invent new payoffs. The values in your table are fixed.
+- Quantity values must be integers (e.g., 50). Price can be a float (e.g., 8.75). Do not use decimals for quantity.
+- No side payments are allowed. You cannot offer perks not listed in the payoff tables.
+- This is a one-time negotiation. Do not make future promises.
+- You may describe issues as you see fit, but you cannot invent new ones.
+- Never make an offer outside the possible values defined in your payoff table.
