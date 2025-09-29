@@ -164,10 +164,10 @@ class BotLLM:
 
     async def interpret_offer(self, message: str, idx: int = None) \
             -> Optional[Offer]:
-        def get_int(p) -> Optional[int]:
+        def get_int(p) -> Optional[float]:
             try:
-                return round(
-                    float("".join(s for s in p if s.isdigit() or s == '-')))
+                # Permitir decimales y signo negativo
+                return round(float("".join(s for s in p if s.isdigit() or s == '-' or s == '.')), 2)
             except ValueError:
                 pass
 
