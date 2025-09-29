@@ -108,7 +108,7 @@ def role_prompts(base: str) -> Dict[str, str]:
         'follow_up_prompt_without_quality': from_file(
             base, 'follow_up_user_message_without_quality.txt'),
         'non_profitable_offer': from_file(
-            base, 'non_profitable_Optimal_Offer.txt'),
+            base, 'non_profitable_Send_Optimal_Offer.txt'),
         'non_profitable_offer_or_deal': from_file(
             base, 'Send_Optimal_Offer_or_Instructions.txt.txt'),
         'follow_up_conversation': from_file(
@@ -120,7 +120,7 @@ def role_prompts(base: str) -> Dict[str, str]:
         'invalid_offer_reminder': from_file(
             base, 'invalid_offer_reminder.txt'),
         'non_price_offer': from_file(
-            base, 'Not_Price_Offer.txt'),
+            base, 'Not_Price_Send_Optimal_Offer.txt'),
     }
 
 
