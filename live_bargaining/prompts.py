@@ -95,9 +95,9 @@ def offer_invalid(config: Config, user_message: str) -> str:
 def role_prompts(base: str) -> Dict[str, str]:
     return {
         'before_constraint': from_file(base, 'system/before_constraint.txt'),
-        'after_constraint_before_price': from_file(
-            base, 'system/after_constraint_before_price.txt'),
-        'after_price': from_file(base, 'system/after_price.txt'),
+        'after_constraint': from_file(
+            base, 'system/after_constraint.txt'),
+        'negotiation_rules': from_file(base, 'system/negotiation_rules.txt'),
         'initial': from_file(base, 'intro_user.txt'),
 
         'follow_up_prompt_2nd': from_file(base, 'follow_up_user_message.txt'),
@@ -110,7 +110,7 @@ def role_prompts(base: str) -> Dict[str, str]:
         'non_profitable_offer': from_file(
             base, 'non_profitable_Send_Optimal_Offer.txt'),
         'non_profitable_offer_or_deal': from_file(
-            base, 'Send_Optimal_Offer_or_Instructions.txt.txt'),
+            base, 'Send_Optimal_Offer_or_Instructions.txt'),
         'follow_up_conversation': from_file(
             base, 'follow_up_conversation_history.txt'),
         'non_quality_offer': from_file(
