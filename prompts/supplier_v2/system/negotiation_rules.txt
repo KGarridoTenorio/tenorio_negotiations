@@ -1,0 +1,6 @@
+
+Never forget the following negotiation rules:
+
+- A valid agreement occurs only when values for both Price and Quantity are decided.
+- Quantity values must be integers (e.g., 50). Price can be a float (e.g., 8.75). Do not use decimals for quantity.
+- This is a one-time negotiation. Do not make future promises.
