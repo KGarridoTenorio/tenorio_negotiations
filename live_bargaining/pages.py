@@ -94,7 +94,7 @@ class ComprehensionCheck(Page):
             config['production_cost_low'], config['production_cost_high'])
         player.participant.vars['demand'] = random.randint(
             config['demand_low'], config['demand_high'])
-        player.participant.vars['price'] = random.choice(C.PRICE_RANGE)
+        player.participant.vars['price'] = random.choice(range(int(C.PRICE_MIN), int(C.PRICE_MAX)))
         player.participant.vars['quality'] = random.choice(C.QUALITY_RANGE)
 
         return {
@@ -112,38 +112,45 @@ class ComprehensionCheck(Page):
         price = player.participant.vars['price']
         quality = player.participant.vars['quality']
 
-        if player.role == C.ROLE_BUYER:
-            profit = Offer.profit_buyer(price, quality, market_price)
-            constraint = f"{market_price} "
-            final_market_price = market_price + quality
-        else:
-            profit = Offer.profit_supplier(price, quality, production_cost)
-            constraint = f"{production_cost}"
-            final_production_cost = production_cost + quality
+        # For the comprehension test, demand is fixed at 50
+        fixed_demand = 50
+        try:
+            answer_float = float(answer)
+        except Exception:
+            answer_float = None
 
-        if answer != profit:
+        if player.role == C.ROLE_BUYER:
+            profit = (market_price - price) * fixed_demand
+            if answer_float is not None and abs(answer_float - profit) < 0.01:
+                return None
+            formula = f"({market_price} - {price}) * {fixed_demand} = {profit:.2f}"
+            explanation = (
+                f"Unfortunately your answer is incorrect!<br><br>"
+                f"Base Market Selling Price to Consumer: {market_price}<br>"
+                f"Agreed quantity (demand): {fixed_demand}<br>"
+                f"Your profit (as a {player.role}) is calculated as:<br>"
+                f"<b>Profit = (Market Price - Price) * Demand</b><br>"
+                f"{formula}<br>"
+                f"Please try again with the new combination."
+            )
             player.comprehension_count += 1
-            if player.role == C.ROLE_BUYER:
-                return \
-                    fr"Unfortunately your answer is incorrect!<br><br>" \
-                    f"Base Market Selling Price to Consumer of {constraint}" \
-                    f"<br>"\
-                    f"With an agreed quality of {quality}, " \
-                    f"the Market Selling Price to Consumer becomes {quality} " \
-                    f"+ {constraint} = {final_market_price} <br>"\
-                    f"Your profit (as a {player.role}) would be calculated " \
-                    f"as {constraint} + {quality} - {price} = {profit}<br>" \
-                    f"Please try again with the new combination"
-            else:
-                return \
-                    fr"Unfortunately your answer is incorrect!<br><br>" \
-                    f"Base Production Cost of {constraint} <br>"\
-                    f"With an agreed quality of {quality}, the Production " \
-                    f"Cost becomes {quality} + {constraint} = " \
-                    f"{final_production_cost} <br>"\
-                    f"Your profit (as a {player.role}) would be calculated " \
-                    f"as {price} - {quality} - {constraint} = {profit}<br>" \
-                    f"Please try again with the new combination"
+            return explanation
+        else:
+            profit = (price * fixed_demand) - (production_cost * fixed_demand)
+            if answer_float is not None and abs(answer_float - profit) < 0.01:
+                return None
+            formula = f"({price} * {fixed_demand}) - ({production_cost} * {fixed_demand}) = {profit:.2f}"
+            explanation = (
+                f"Unfortunately your answer is incorrect!<br><br>"
+                f"Base Production Cost: {production_cost}<br>"
+                f"Agreed quantity (demand): {fixed_demand}<br>"
+                f"Your profit (as a {player.role}) is calculated as:<br>"
+                f"<b>Profit = (Price * Demand) - (Production Cost * Demand)</b><br>"
+                f"{formula}<br>"
+                f"Please try again with the new combination."
+            )
+            player.comprehension_count += 1
+            return explanation
 
 
 class Bargain(Page):
