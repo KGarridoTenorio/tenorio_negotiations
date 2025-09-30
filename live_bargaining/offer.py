@@ -14,7 +14,7 @@ INVALID_OFFER = 'invalid_offer'
 class Offer(dict):
     def __init__(self,
                  idx: int = -1,
-                 price: int = None,
+                 price: float = None,
                  quality: int = None,
                  stamp: int = None,
                  from_chat: bool = False,
@@ -80,7 +80,7 @@ class Offer(dict):
     def profits(self, bot_role: str, constraint_user: int, constraint_bot: int):
         """ This calculates the profits for the user and the bot """
         if not self.is_valid or None in (constraint_user, constraint_bot):
-            self.profit_bot = -10
+            self.profit_bot = -11
             self.profit_user = -10
             return
 

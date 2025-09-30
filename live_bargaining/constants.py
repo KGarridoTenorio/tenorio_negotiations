@@ -40,7 +40,8 @@ class C(RoleConstants):
     PATTERN_CONSTRAINT = re.compile(r'\[.*?\]')
     PATTERN_OFFER = re.compile(r'\[([^\]]+)\]')
 
-    PRICE_RANGE = range(1, 15)
+    PRICE_MIN = 1.0
+    PRICE_MAX = 14.0
     QUALITY_RANGE = range(0, 100)
     DEMAND_MIN = min(QUALITY_RANGE)
     DEMAND_MAX = max(QUALITY_RANGE)
