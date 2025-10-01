@@ -141,6 +141,7 @@ class BotStrategy(BotBase):
         while len(llm_offers) < 3 and evaluation != ACCEPT:
             response = await self.get_llm_response(
                 content1 if len(llm_offers) < 3 else content2)
+            print('[DEBUG Bot_strategy.respond_to_non_offer]', response)
             llm_output = self.extract_content(response)
             last_offer = await self.interpret_offer(llm_output, -1)
 

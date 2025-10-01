@@ -35,4 +35,8 @@ Output: [,]
 
 Message: Price is 9.43 for 25 quantity.
 Output: [9.43€, 25]
+
+Message: Give me your best offer.
+Output: [,]
+
 """
