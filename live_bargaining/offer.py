@@ -58,7 +58,7 @@ class Offer(dict):
 
     @property
     def price_in_range(self) -> bool:
-        return self.price in C.PRICE_RANGE
+        return C.PRICE_MIN <= self.price <= C.PRICE_MAX
 
     @property
     def quality_in_range(self) -> bool:
@@ -95,20 +95,23 @@ class Offer(dict):
             self.profit_user = self.profit_supplier(*args_user)
 
     def evaluate(self) -> str:
+        print(f"[DEBUG Offer.evaluate] Oferta: price={self.price}, quality={self.quality}, profit_bot={self.profit_bot}, profit_user={self.profit_user}, is_valid={self.is_valid}")
         if self.profit_bot >= self.profit_user:
-            return ACCEPT
+            result = ACCEPT
         elif self.is_valid:
-            return NOT_PROFITABLE
+            result = NOT_PROFITABLE
         elif self.price is None and self.quality_in_range:
-            return OFFER_QUALITY
+            result = OFFER_QUALITY
         elif self.quality is None and self.price_in_range:
-            return OFFER_PRICE
+            result = OFFER_PRICE
         elif self.price is not None and not self.price_in_range:
-            return INVALID_OFFER
+            result = INVALID_OFFER
         elif self.quality is not None and not self.quality_in_range:
-            return INVALID_OFFER
+            result = INVALID_OFFER
         else:
-            return NOT_OFFER
+            result = NOT_OFFER
+        print(f"[DEBUG Offer.evaluate] Resultado evaluación: {result}")
+        return result
         
     @staticmethod
     def expected_demand(quality: int, demand_min: int, demand_max: int) -> float:
