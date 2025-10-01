@@ -21,15 +21,6 @@ class BotStrategy(BotBase):
         self.store_send_data(llm_output=message)
 
     async def follow_up(self):
-        # loops is the count of user chats (zero-based)
-        loops = sum(i['role'] == 'user' for i in self.interaction_list) - 1
-        if loops == 0:
-            await self.constraint_initial()
-            return
-        elif self.constraint_user is None:
-            await self.constraint_final()
-            return
-
         # Extract possible offer, add to the list if valid
         self.offer_user = await self.interpret_offer(self.user_message)
         self.offer_list.append(self.offer_user)
@@ -41,39 +32,6 @@ class BotStrategy(BotBase):
 
         # Evaluate the profitability of user offer and respond
         await self.evaluate()
-
-    async def constraint_initial(self):
-        constraint_user = await self.interpret_constraints(self.user_message)
-        context_constraint = PROMPTS['context_constraint'][self.role]
-
-        if self.constraint_in_range(constraint_user):
-            params = (constraint_user, context_constraint) * 2
-            message = PROMPTS['constraint_confirm'] % params
-            bot_vars = {'initial_constraint': constraint_user}
-            self.store_send_data(llm_output=message, bot_vars=bot_vars)
-        else:
-            message = PROMPTS['constraint_clarify'] % context_constraint
-            self.store_send_data(llm_output=message)
-
-    async def constraint_final(self):
-        constraint_user = await self.interpret_constraints(self.user_message)
-
-        if self.constraint_in_range(constraint_user):
-            if self.role == C.ROLE_BUYER:
-                message = PROMPTS['constraint_final_supplier']
-                final_constraint = constraint_user
-            else:
-                message = PROMPTS['constraint_final_buyer']
-                final_constraint = constraint_user
-        else:
-            if self.role == C.ROLE_BUYER:
-                message = PROMPTS['constraint_persist_final_supplier']
-            else:
-                message = PROMPTS['constraint_persist_final_buyer']
-            final_constraint = self.constant_draw_constraint()
-
-        bot_vars = {'final_constraint': final_constraint}
-        self.store_send_data(llm_output=message, bot_vars=bot_vars)
 
     async def evaluate(self):
         # Add profits for user and bot to the offers

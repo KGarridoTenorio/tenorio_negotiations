@@ -43,8 +43,10 @@ class BotBase:
 
     @cached_property
     def constraint_user(self) -> int:
-        return self.config['bot_vars'].get('final_constraint')
-
+        if self.role == C.ROLE_BUYER:
+            return self.config['production_cost']
+        else:
+            return self.config['market_price']
     @cached_property
     def constraint_bot(self) -> int:
         if self.role == C.ROLE_SUPPLIER:

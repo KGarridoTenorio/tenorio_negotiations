@@ -125,8 +125,8 @@ def role_prompts(base: str) -> Dict[str, str]:
 
 
 PROMPTS = {
-    'first_message_PC': "Hi! I'm excited to start our negotiation. As we begin, I'd like to get a sense of your needs and constraints. Can you share with me your Base Production Cost?",
-    'first_message_MP': "Hi! I'm excited to start our negotiation. As we begin, I'd like to get a sense of your needs and constraints. Can you share with me your Base Market Selling Price to Consumer?",
+    'first_message_PC': "Hi Supplier! I'm excited to start our negotiation. As we begin, I'd like to give you the opportunity to make an offer first. Or if you prefer, I can make the first offer. Just let me know! ",
+    'first_message_MP': "Hi Retailer! I'm excited to start our negotiation. As we begin, I'd like to give you the opportunity to make an offer first. Or if you prefer, I can make the first offer. Just let me know! ",
     'offer_string': f"Price of %s€ and quality of %s",
     'constraints': 'Here is the negotiator message you need to read: ',
     'context_constraint': {
