@@ -9,12 +9,14 @@
         The negotiation time ran out and you haven't reached an agreement on
         time.<br>
         Make sure to come to an agreement before the end of the timer.
+        The demand was {% formatted_demand %}.
       </p>
     {% else %}
       <p>
         Congratulations, you made a deal at the price
         of {% formatted_deal_price %}, that translates to profits
         of {% formatted_profits %}.
+        The demand was {% formatted_demand %}.
       </p>
     {% endif %}
 

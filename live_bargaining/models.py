@@ -82,6 +82,7 @@ class Group(BaseGroup):
     market_price = models.IntegerField()
     production_cost = models.IntegerField()
     max_greedy = models.BooleanField()
+    demand=models.IntegerField()
 
     def initialize_group(self, config: Dict[str, Any],
                          preference_role: str, max_greedy: bool):
@@ -93,7 +94,7 @@ class Group(BaseGroup):
         high = config['production_cost_high']
         self.production_cost = round(random.uniform(low, high))
         self.max_greedy = max_greedy
-
+        self.demand = random.randint(config['demand_low'], config['demand_high'])
         players = self.get_players()
         self.single_player = len(players) if len(players) % 2 == 1 else 0
 
@@ -238,10 +239,13 @@ class Player(BasePlayer):
         return {'chat': self.chat_data}
 
     def calculate_profits(self) -> Tuple[int, int]:
-        aggregate = self.price_accepted - self.quality_accepted
-        buyer_profit = self.group.market_price - aggregate
-        supplier_profit = aggregate - self.group.production_cost
+        demand=self.group.demand
+        
+        quantity_sold = min(self.quality_accepted, demand)
+        unsold_quantity = min(demand-self.quality_accepted, 0)
 
+        buyer_profit = (self.group.market_price - self.price_accepted) * quantity_sold
+        supplier_profit = (self.price_accepted - self.group.production_cost) * (quantity_sold) + (self.group.production_cost * unsold_quantity)
         if self.role == C.ROLE_BUYER:
             return buyer_profit, supplier_profit
         elif self.role == C.ROLE_SUPPLIER:

@@ -29,6 +29,7 @@ class NegotiationBot(BotStrategy, BotTask, BotLLM):
 
             'production_cost': player.group.production_cost,
             'market_price': player.group.market_price,
+            'demand': player.group.demand,
             'max_greedy': player.group.max_greedy,
 
             'bot_vars': player.bot_vars,

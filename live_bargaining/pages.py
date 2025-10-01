@@ -205,26 +205,31 @@ class Bargain(Page):
 class Results(Page):
     @staticmethod
     def get_params(player: Player) -> Tuple[str, str, int]:
+
         if player.field_maybe_none("price_accepted") is None:
             formatted_deal_price = ""
             formatted_profits = "€ 0"
+            formatted_demand= ""
         else:
             formatted_deal_price = f"€ {player.price_accepted}"
             formatted_profits = f"€ {int(player.payoff)}"
+            formatted_demand= player.group.demand
+        
 
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
         player.participant.payoff = total_score / 9
 
-        return formatted_deal_price, formatted_profits, total_score
+        return formatted_deal_price, formatted_profits, total_score, formatted_demand
 
     @classmethod
     def vars_for_template(cls, player: Player) -> Dict[str, Any]:
         if player.round_number == C.NUM_ROUNDS:
             return cls.vars_for_template_last_round(player)
 
-        formatted_deal_price, formatted_profits, total_score = \
+        formatted_deal_price, formatted_profits, total_score, formatted_demand = \
             cls.get_params(player)
         return {
+            'formatted_demand': formatted_demand,
             'formatted_deal_price': formatted_deal_price,
             'formatted_profits': formatted_profits,
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
