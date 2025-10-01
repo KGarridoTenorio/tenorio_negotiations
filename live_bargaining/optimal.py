@@ -47,13 +47,19 @@ def optimal_quality_for_wholesale_price(offer: Offer, constraint_bot, constraint
     
 def nash_bargaining_solution(o: Offer, constraint_bot: int, constraint_user: int) -> Tuple[int, int]:
 
-     market_price = max(constraint_bot, constraint_user)
-     production_cost = min(constraint_bot, constraint_user)
-     demand_range = C.DEMAND_MAX - C.DEMAND_MIN
-     quality_star = demand_range * (market_price - production_cost) / market_price
-     price_star = market_price * (market_price + 3 * production_cost) / (2 * (market_price + production_cost))
-     print(f"[DEBUG nash_bargaining_solution] price_star: {price_star}, quality_star: {quality_star}")
-     return (price_star, quality_star)
+    market_price = max(constraint_bot, constraint_user)
+    production_cost = min(constraint_bot, constraint_user)
+
+    demand_range = C.DEMAND_MAX - C.DEMAND_MIN
+    quality_star = demand_range * (market_price - production_cost) / market_price
+    price_star = market_price * (market_price + 3 * production_cost) / (2 * (market_price + production_cost))
+
+    profit_supplier = Offer.profit_supplier(price_star, quality_star, production_cost, C.DEMAND_MIN, C.DEMAND_MAX)
+    profit_buyer = Offer.profit_buyer(price_star, quality_star, market_price, C.DEMAND_MIN, C.DEMAND_MAX)
+
+    print(f"""[DEBUG nash_bargaining_solution] price_star: {price_star}, quality_star: {quality_star},
+           profit_supplier: {profit_supplier}, profit_buyer: {profit_buyer}""")
+    return (price_star, quality_star)
 
 def optimal_solution_string(constraint_user: int,
                             constraint_bot: int,
