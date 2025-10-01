@@ -166,8 +166,7 @@ class BotLLM:
             -> Optional[Offer]:
         def get_int(p) -> Optional[float]:
             try:
-                # Permitir decimales y signo negativo
-                return round(float("".join(s for s in p if s.isdigit() or s == '-' or s == '.')), 2)
+                return round(float("".join(s for s in p if s.isdigit() or s == '.')), 2)
             except ValueError:
                 pass
 
