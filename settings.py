@@ -1,7 +1,7 @@
 import socket
 from os import environ
 
-LOCAL_NAMES = ['glendronach', 'awesom-o-4000', 'Klauss-MacBook-Pro.local', 'Asus-Tuf-Dash-f15']
+LOCAL_NAMES = ['glendronach', 'awesom-o-4000', 'Klauss-MacBook-Pro.local', 'Asus-Tuf-Dash-f15', 'mac.home']
 
 SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 1.00,
