@@ -105,7 +105,7 @@ class Offer(dict):
         """
 
         # Best case: use maximum quality for maximum expected sales
-        q_best = dmax
+        q_best = dmax - (production_cost*(dmax - dmin) / self.price)
         ES_best = (((q_best**2 - dmin**2)/2) + q_best*(dmax - q_best)) / (dmax - dmin)
         
         if bot_is_supplier:
