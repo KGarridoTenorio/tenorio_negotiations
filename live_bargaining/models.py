@@ -245,7 +245,7 @@ class Player(BasePlayer):
         unsold_quantity = min(demand-self.quality_accepted, 0)
 
         buyer_profit = (self.group.market_price - self.price_accepted) * quantity_sold
-        supplier_profit = (self.price_accepted - self.group.production_cost) * (quantity_sold) + (self.group.production_cost * unsold_quantity)
+        supplier_profit = ((self.price_accepted - self.group.production_cost) * (quantity_sold)) + (self.group.production_cost * unsold_quantity)
         if self.role == C.ROLE_BUYER:
             return buyer_profit, supplier_profit
         elif self.role == C.ROLE_SUPPLIER:

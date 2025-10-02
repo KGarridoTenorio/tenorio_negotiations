@@ -14,7 +14,7 @@
     {% else %}
       <p>
         Congratulations, you made a deal at the price
-        of {% formatted_deal_price %}, that translates to profits
+        of {% formatted_deal_price %} for {% formatted_deal_quantity %} units, that translates to profits
         of {% formatted_profits %}.
         The demand was {% formatted_demand %}.
       </p>
@@ -42,8 +42,9 @@
       {% else %}
         <p>
           Congratulations, you made your final deal at the price
-          of {% formatted_deal_price %}, that translates to profits
+          of {% formatted_deal_price %} for {% formatted_deal_quantity %} units, that translates to profits
           of {% formatted_profits %}.
+          The demand was {% formatted_demand %}.
         </p>
       {% endif %}
       <p>
@@ -63,8 +64,9 @@
       {% else %}
         <p>
           Congratulations, you made your final deal at the price
-          of {% formatted_deal_price %}, that translates to profits
+          of {% formatted_deal_price %} for {% formatted_deal_quantity %} units, that translates to profits
           of {% formatted_profits %}.
+          The demand was {% formatted_demand %}.
         </p>
       {% endif %}
 

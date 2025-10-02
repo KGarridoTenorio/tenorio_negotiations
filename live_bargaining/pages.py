@@ -208,10 +208,12 @@ class Results(Page):
 
         if player.field_maybe_none("price_accepted") is None:
             formatted_deal_price = ""
+            formatted_deal_quantity = ""
             formatted_profits = "€ 0"
             formatted_demand= ""
         else:
             formatted_deal_price = f"€ {player.price_accepted}"
+            formatted_deal_quantity = f"{player.quality_accepted}"
             formatted_profits = f"€ {int(player.payoff)}"
             formatted_demand= player.group.demand
         
@@ -219,19 +221,20 @@ class Results(Page):
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
         player.participant.payoff = total_score / 9
 
-        return formatted_deal_price, formatted_profits, total_score, formatted_demand
+        return formatted_deal_price,formatted_deal_quantity, formatted_profits, total_score, formatted_demand
 
     @classmethod
     def vars_for_template(cls, player: Player) -> Dict[str, Any]:
         if player.round_number == C.NUM_ROUNDS:
             return cls.vars_for_template_last_round(player)
 
-        formatted_deal_price, formatted_profits, total_score, formatted_demand = \
+        formatted_deal_price, formatted_deal_quantity, formatted_profits, total_score, formatted_demand = \
             cls.get_params(player)
         return {
             'formatted_demand': formatted_demand,
             'formatted_deal_price': formatted_deal_price,
             'formatted_profits': formatted_profits,
+            'formatted_deal_quantity': formatted_deal_quantity,
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
             'formatted_AVG_human_profit': f"€ {player.participant.payoff:.2f}",
             'rounds_count': int(player.round_number-2),
@@ -239,7 +242,7 @@ class Results(Page):
 
     @classmethod
     def vars_for_template_last_round(cls, player: Player) -> Dict[str, Any]:
-        formatted_deal_price, formatted_profits, total_score = \
+        formatted_deal_price, formatted_deal_quantity,  formatted_profits, total_score = \
             cls.get_params(player)
 
         selected_profits = BotProfits.get_role_key_lists(player)
@@ -271,6 +274,7 @@ class Results(Page):
         return {
             'formatted_deal_price': formatted_deal_price,
             'formatted_profits': formatted_profits,
+            'formatted_deal_quantity': formatted_deal_quantity,
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
             'formatted_AVG_human_profit': f"€ {max(0,player.participant.payoff):.2f}",
             'formatted_bot_payment': f"€ {average_bot_profit:.2f}",
