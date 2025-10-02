@@ -120,32 +120,39 @@ class ComprehensionCheck(Page):
             answer_float = None
 
         if player.role == C.ROLE_BUYER:
-            profit = (market_price - price) * fixed_demand
+            quantity_sold = min(quality, fixed_demand)
+            profit =(market_price - price) * quantity_sold
             if answer_float is not None and abs(answer_float - profit) < 0.01:
                 return None
             formula = f"({market_price} - {price}) * {fixed_demand} = {profit:.2f}"
             explanation = (
                 f"Unfortunately your answer is incorrect!<br><br>"
-                f"Base Market Selling Price to Consumer: {market_price}<br>"
-                f"Agreed quantity (demand): {fixed_demand}<br>"
+                f"Retail Price: {market_price}<br>"
+                f"Agreed Wholesale Price: {price}<br>"
+                f"Agreed Quantity: {quality}<br>"
+                f"The Random Demand from the market: {fixed_demand}<br>"
                 f"Your profit (as a {player.role}) is calculated as:<br>"
-                f"<b>Profit = (Market Price - Price) * Demand</b><br>"
+                f"<b>Profit = (Retail Price - Wholesale Price) * Quantity Sold</b><br>"
                 f"{formula}<br>"
                 f"Please try again with the new combination."
             )
             player.comprehension_count += 1
             return explanation
         else:
-            profit = (price * fixed_demand) - (production_cost * fixed_demand)
+            quantity_sold = min(quality, fixed_demand)
+            unsold_quantity = min(fixed_demand, quality)
+            profit = ((price - production_cost) * (quantity_sold)) + (production_cost * unsold_quantity)
             if answer_float is not None and abs(answer_float - profit) < 0.01:
                 return None
             formula = f"({price} * {fixed_demand}) - ({production_cost} * {fixed_demand}) = {profit:.2f}"
             explanation = (
                 f"Unfortunately your answer is incorrect!<br><br>"
-                f"Base Production Cost: {production_cost}<br>"
-                f"Agreed quantity (demand): {fixed_demand}<br>"
+                f"Production Cost: {production_cost}<br>"
+                f"Agreed Wholesale Price: {price}<br>"
+                f"Agreed Quantity: {quality}<br>"
+                f"The Random Demand from the market: {fixed_demand}<br>"
                 f"Your profit (as a {player.role}) is calculated as:<br>"
-                f"<b>Profit = (Price * Demand) - (Production Cost * Demand)</b><br>"
+                f"<b>Profit = ((Wholesale Price - Production Cost) * (Quantity Sold)) + (Production Cost * Unsold Quantity)</b><br>"
                 f"{formula}<br>"
                 f"Please try again with the new combination."
             )

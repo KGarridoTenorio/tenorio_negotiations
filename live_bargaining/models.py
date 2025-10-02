@@ -238,7 +238,7 @@ class Player(BasePlayer):
         self.chat_data = tmp
         return {'chat': self.chat_data}
 
-    def calculate_profits(self) -> Tuple[int, int]: # TO DO: RESULTS PAGE
+    def calculate_profits(self) -> Tuple[int, int]: 
         demand=self.group.demand
         
         quantity_sold = min(self.quality_accepted, demand)
