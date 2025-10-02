@@ -103,18 +103,20 @@ class Offer(dict):
         Checks if a given price allows the bot to achieve Nash profit.
         Returns: True / False
         """
-
-        # Best case: use maximum quality for maximum expected sales
-        q_best = dmax - (production_cost*(dmax - dmin) / self.price)
-        ES_best = (((q_best**2 - dmin**2)/2) + q_best*(dmax - q_best)) / (dmax - dmin)
         
         if bot_is_supplier:
+            q_best = dmax - (production_cost*(dmax - dmin) / self.price)
+            ES_best = (((q_best**2 - dmin**2)/2) + q_best*(dmax - q_best)) / (dmax - dmin)
+
             max_profit = self.price * ES_best - production_cost * q_best
             
             if max_profit < nash_profit:
                 print(f"Price {self.price:.2f} too low. Bot (supplier) max profit = {max_profit:.2f} < Nash {nash_profit:.2f}")
                 return False
         else:
+            q_best = dmax
+            ES_best = (((q_best**2 - dmin**2)/2) + q_best*(dmax - q_best)) / (dmax - dmin)
+
             max_profit = (market_price - self.price) * ES_best
 
             if max_profit < nash_profit:
