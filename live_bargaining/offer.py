@@ -9,6 +9,7 @@ OFFER_QUALITY = 'offer_quality'
 OFFER_PRICE = 'offer_price'
 NOT_OFFER = 'not_offer'
 INVALID_OFFER = 'invalid_offer'
+TOO_UNFAVOURABLE = 'too_unfavourable'
 
 
 class Offer(dict):
@@ -95,22 +96,122 @@ class Offer(dict):
             self.profit_bot = self.profit_buyer(*args_bot)
             self.profit_user = self.profit_supplier(*args_user)
 
-    def evaluate(self) -> str:
+    def is_price_feasible(self, market_price: float, production_cost: float,
+                         nash_profit: float, dmin: int, dmax: int,
+                         bot_is_supplier: bool) -> bool:
+        """
+        Checks if a given price allows the bot to achieve Nash profit.
+        Returns: True / False
+        """
+
+        # Best case: use maximum quality for maximum expected sales
+        q_best = dmax
+        ES_best = (((q_best**2 - dmin**2)/2) + q_best*(dmax - q_best)) / (dmax - dmin)
+        
+        if bot_is_supplier:
+            max_profit = self.price * ES_best - production_cost * q_best
+            
+            if max_profit < nash_profit:
+                print(f"Price {self.price:.2f} too low. Bot (supplier) max profit = {max_profit:.2f} < Nash {nash_profit:.2f}")
+                return False
+        else:
+            max_profit = (market_price - self.price) * ES_best
+
+            if max_profit < nash_profit:
+                print(f"Price {self.price:.2f} too high. Bot (buyer) max profit = {max_profit:.2f} < Nash {nash_profit:.2f}")
+                return False
+            
+        return True
+    
+    def is_quality_feasible(self, market_price: float, production_cost: float,
+                           nash_profit: float, dmin: int, dmax: int,
+                           bot_is_supplier: bool) -> bool:
+        """
+        Checks if a given quality allows the bot to achieve Nash profit.
+        Returns: True / False
+        """
+
+        ES = (((self.quality**2 - dmin**2)/2) + self.quality*(dmax - self.quality)) / (dmax - dmin)
+        
+        if bot_is_supplier:
+            required_price = (nash_profit + production_cost * self.quality) / ES
+
+            if required_price < 0:
+                print(f"Quality {self.quality} requires negative price for Nash profit")
+                return False
+            
+            if required_price >= market_price:
+                print(f"Quality {self.quality} requires price {required_price:.2f} >= market price {market_price:.2f}")
+                return False
+        else:
+            max_acceptable_price = market_price - nash_profit / ES
+
+            if max_acceptable_price < production_cost:
+                print(f"Quality {self.quality} requires negative price for Nash profit")
+                return False
+        
+        return True
+
+    
+    def validate_partial_offer(self, constraint_bot, constraint_user) -> bool:
+        from live_bargaining.optimal import nash_bargaining_solution 
+
+        nash_profit = nash_bargaining_solution(constraint_bot, constraint_user)['profit']
+
+        production_cost = min(constraint_bot, constraint_user)
+        market_price = max(constraint_bot, constraint_user)
+        dmin = C.DEMAND_MIN
+        dmax = C.DEMAND_MAX
+
+        bot_is_supplier = (constraint_bot == production_cost)
+
+        if self.price is not None:
+            is_valid = self.is_price_feasible(
+                market_price, production_cost, nash_profit, 
+                dmin, dmax, bot_is_supplier
+            )
+            if not is_valid:
+                return False
+        
+        if self.quality is not None:
+            is_valid = self.is_quality_feasible(
+                market_price, production_cost, nash_profit,
+                dmin, dmax, bot_is_supplier
+            )
+            if not is_valid:
+                return False
+        
+        return True
+
+    def evaluate(self, constraint_bot, constraint_user) -> str:
+        from live_bargaining.optimal import nash_bargaining_solution 
+        nash_profit = nash_bargaining_solution(constraint_bot, constraint_user)['profit']
+
         print(f"[DEBUG Offer.evaluate] Oferta: price={self.price}, quality={self.quality}, profit_bot={self.profit_bot}, profit_user={self.profit_user}, is_valid={self.is_valid}")
-        if self.profit_bot >= self.profit_user:
+        if self.profit_bot >= nash_profit:
             result = ACCEPT
         elif self.is_valid:
             result = NOT_PROFITABLE
+
         elif self.price is None and self.quality_in_range:
+            if not self.validate_partial_offer(constraint_bot, constraint_user):
+                result = TOO_UNFAVOURABLE
+                return result
             result = OFFER_QUALITY
+
         elif self.quality is None and self.price_in_range:
+            if not self.validate_partial_offer(constraint_bot, constraint_user):
+                result = TOO_UNFAVOURABLE
+                return result
             result = OFFER_PRICE
+
         elif self.price is not None and not self.price_in_range:
             result = INVALID_OFFER
         elif self.quality is not None and not self.quality_in_range:
             result = INVALID_OFFER
         else:
             result = NOT_OFFER
+
         print(f"[DEBUG Offer.evaluate] Resultado evaluación: {result}")
         return result
         
@@ -131,7 +232,6 @@ class Offer(dict):
     def profit_buyer(price: int, quality: int, market_price: int, demand_min: int, demand_max: int) -> float:
         expected_sales = Offer.expected_demand(quality, demand_min, demand_max)
         return (market_price - price) * expected_sales
-
 
 class OfferList(list):
     def __init__(self, *args):

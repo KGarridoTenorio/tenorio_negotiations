@@ -4,11 +4,11 @@ from typing import Any, List, Union
 
 from .bot_base import BotBase
 from .offer import (Offer, ACCEPT, OFFER_QUALITY, OFFER_PRICE,
-                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE)
+                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE, TOO_UNFAVOURABLE)
 from .constants import C
 from .prompts import (PROMPTS, not_profitable_prompt, empty_offer_prompt,
                       offer_without_price_prompt, offer_without_quality_prompt,
-                      offer_invalid)
+                      offer_invalid, offer_with_single_unfavourable_term_prompt)
 from .optimal import optimal_solution_string
 
 
@@ -39,7 +39,7 @@ class BotStrategy(BotBase):
             self.add_profits(offer)
 
         # Evaluate the profitability of user offer and respond
-        evaluation = self.offer_user.evaluate()
+        evaluation = self.offer_user.evaluate(self.constraint_bot, self.constraint_user)
 
         self.optimal_offer = optimal_solution_string(
             self.constraint_user, self.constraint_bot, evaluation, self.offer_user)
@@ -50,6 +50,8 @@ class BotStrategy(BotBase):
             await self.respond_to_offer(evaluation)
         elif evaluation in (INVALID_OFFER, NOT_OFFER):
             await self.respond_to_non_offer(evaluation)
+        elif evaluation == TOO_UNFAVOURABLE:
+            await self.respond_to_offer(evaluation)
         else:
             raise Exception
 
@@ -92,6 +94,10 @@ class BotStrategy(BotBase):
             return empty_offer_prompt(
                 self.config, self.user_message,
                 self.optimal_offer, str(self.interaction_list))
+        elif evaluation == TOO_UNFAVOURABLE:
+            return offer_with_single_unfavourable_term_prompt(
+                self.config, self.user_message,
+                self.optimal_offer, str(self.interaction_list))
         elif evaluation == OFFER_QUALITY:
             return offer_without_price_prompt(
                 self.config, self.user_message,
@@ -127,7 +133,7 @@ class BotStrategy(BotBase):
             else:
                 last_offer.profit_bot = last_offer.profit_user = 0
             llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate()
+            evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
         self.send_response(evaluation, last_offer, llm_output, llm_offers)
 
@@ -150,7 +156,7 @@ class BotStrategy(BotBase):
             else:
                 last_offer.profit_bot = last_offer.profit_user = 0
             llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate()
+            evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
         self.send_response(evaluation, last_offer, llm_output, llm_offers)
 

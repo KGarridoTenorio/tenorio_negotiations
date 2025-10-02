@@ -41,6 +41,19 @@ def empty_offer_prompt(config: Config,
             prompts['follow_up_conversation'] +
             interactions)
 
+def offer_with_single_unfavourable_term_prompt(config: Config,
+                       user_message: str,
+                       optimal_offer: str,
+                       interactions: str) -> str:
+    bot_role = config['roles']['bot_role']
+    prompts = PROMPTS[bot_role]
+    return (prompts['follow_up_prompt_unfavourable_term_offer'] +
+            user_message + ' ' +
+            prompts['unfavourable_term_offer'] +
+            optimal_offer + '\n' +
+            prompts['follow_up_conversation'] +
+            interactions)
+
 
 def offer_without_quality_prompt(config: Config,
                                  user_message: str,
@@ -103,12 +116,16 @@ def role_prompts(base: str) -> Dict[str, str]:
         'follow_up_prompt_2nd': from_file(base, 'follow_up_user_message.txt'),
         'follow_up_prompt_without_offer': from_file(
             base, 'follow_up_user_message_without_offer.txt'),
+        'follow_up_prompt_unfavourable_term_offer': from_file(
+            base, 'follow_up_user_message_unfavourable_term_offer.txt'),
         'follow_up_prompt_without_price': from_file(
             base, 'follow_up_user_message_without_price.txt'),
         'follow_up_prompt_without_quality': from_file(
             base, 'follow_up_user_message_without_quality.txt'),
         'non_profitable_offer': from_file(
             base, 'non_profitable_Send_Optimal_Offer.txt'),
+        'unfavourable_term_offer': from_file(
+            base, 'single_term_unfavourable_send_nash.txt'),
         'non_profitable_offer_or_deal': from_file(
             base, 'Send_Optimal_Offer_or_Instructions.txt'),
         'follow_up_conversation': from_file(
