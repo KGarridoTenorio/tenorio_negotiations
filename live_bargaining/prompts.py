@@ -20,12 +20,9 @@ def system_final_prompt(config: Config):
         production_cost if bot_role == C.ROLE_SUPPLIER else market_price
     after_constraint = PROMPTS[bot_role]['after_constraint']
 
-    negotiation_rules = PROMPTS[bot_role]['negotiation_rules']
-
     return (before_constraint +
             f"{bot_constraint}€" +
-            after_constraint +
-            negotiation_rules)
+            after_constraint)
 
 
 def empty_offer_prompt(config: Config,
@@ -110,9 +107,6 @@ def role_prompts(base: str) -> Dict[str, str]:
         'before_constraint': from_file(base, 'system/before_constraint.txt'),
         'after_constraint': from_file(
             base, 'system/after_constraint.txt'),
-        'negotiation_rules': from_file(base, 'system/negotiation_rules.txt'),
-        'initial': from_file(base, 'intro_user.txt'),
-
         'follow_up_prompt_2nd': from_file(base, 'follow_up_user_message.txt'),
         'follow_up_prompt_without_offer': from_file(
             base, 'follow_up_user_message_without_offer.txt'),
