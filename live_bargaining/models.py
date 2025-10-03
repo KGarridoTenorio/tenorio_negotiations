@@ -77,15 +77,19 @@ def vars_for_admin_report(sub_session: Subsession) -> Dict[str, Any]:
 
 
 class Group(BaseGroup):
+    
     preference_role = models.StringField(max_length=10)
     single_player = models.IntegerField()
     market_price = models.IntegerField()
     production_cost = models.IntegerField()
     max_greedy = models.BooleanField()
     demand=models.IntegerField()
+    optimal_offer = JsonField(initial=[])
+    
 
     def initialize_group(self, config: Dict[str, Any],
                          preference_role: str, max_greedy: bool):
+        from live_bargaining.optimal import nash_bargaining_solution 
         self.preference_role = preference_role
         low = config['market_price_low']
         high = config['market_price_high']
@@ -98,6 +102,7 @@ class Group(BaseGroup):
         players = self.get_players()
         self.single_player = len(players) if len(players) % 2 == 1 else 0
 
+        self.optimal_offer= nash_bargaining_solution(self.production_cost,self.market_price)
         # Make sure all players get a Role
         for player in self.get_players():
             player.is_single = player.id_in_group == self.single_player

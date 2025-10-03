@@ -207,6 +207,24 @@ class Bargain(Page):
         if data['type'] == 'accept':
             player.process_accept(price, quality)
             return {idx: {'finished': True} for idx in player.live_ids}
+    
+    @staticmethod
+    def get_params(player: Player) -> Tuple[str, str, int]:
+
+        formatted_optimal_offer = player.group.optimal_offer
+        if isinstance(formatted_optimal_offer, dict) and 'profit' in formatted_optimal_offer and 'offer' in formatted_optimal_offer:
+                profit = formatted_optimal_offer['profit']
+                price, quantity = formatted_optimal_offer['offer']
+                formatted_optimal_offer = f"A Wholesale Price of {price:.2f}€ and {quantity} units have expected profits of {profit:.1f} (Same expected profit for you and your counterpart)."
+        return formatted_optimal_offer
+
+    @classmethod
+    def vars_for_template(cls, player: Player) -> Dict[str, Any]:
+        formatted_optimal_offer= \
+            cls.get_params(player)
+        return {
+            'formatted_optimal_offer': formatted_optimal_offer
+        }
 
 
 class Results(Page):

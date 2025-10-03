@@ -118,6 +118,14 @@
       </tr>
     </table>
 
+    <h3>Nash Equilibrium Offer</h3>
+      <p>
+        {% formatted_optimal_offer %}
+      </p>
+      <h3>Decision Support System</h3>
+      <p>
+        Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
+      </p>
   {% else %}
     <p>
       {% if player.is_supplier %}
@@ -229,5 +237,15 @@
         Price of {% group.market_price %}€. Otherwise, you don't make a PROFIT.
       </p>
     {% endif %}
+    <h3>Nash Equilibrium Offer</h3>
+    <p>
+      {% formatted_optimal_offer %}
+    </p>
+    <h3>Decision Support System</h3>
+    <p>
+      Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
+    </p>
+    
+
   {% endif %}
 {% endblock %}
