@@ -27,7 +27,7 @@ def nash_bargaining_solution(constraint_bot: int, constraint_user: int) -> Dict[
     profit_supplier = Offer.profit_supplier(price_star, quality_star, production_cost, C.DEMAND_MIN, C.DEMAND_MAX)
     profit_buyer = Offer.profit_buyer(price_star, quality_star, market_price, C.DEMAND_MIN, C.DEMAND_MAX)
     
-    target_profit = profit_supplier if production_cost == constraint_bot else profit_buyer
+    target_profit = math.floor(profit_supplier *100)/100 if production_cost == constraint_bot else math.floor(profit_buyer *100) /100
     
     print(f"[DEBUG nash_bargaining_solution] price_star: {price_star}, quality_star: {quality_star}, target_profit: {target_profit}")
     
@@ -49,9 +49,9 @@ def optimal_wholesale_price_for_quality(offer: Offer, constraint_bot, constraint
     bot_is_supplier = (constraint_bot == c)
 
     if bot_is_supplier:
-        best_p = (target + c * q) / E
+        best_p = math.ceil((target + c * q) / E *100) /100 #rounding up to ensure reaching target profit
     else:
-        best_p = Pm - target / E
+        best_p = math.floor(Pm - target / E *100) /100 #rounding down to ensure reaching target profit
 
     if best_p > 0:
         return (best_p, q)
@@ -217,7 +217,7 @@ def optimal_quality_for_wholesale_price(offer: Offer, constraint_bot, constraint
     if feas:
         # Maximize user profit, tie-break by total profit
         best_q = max(feas, key=lambda q: (user_profit(q), user_profit(q) + bot_profit(q)))
-        return float(p), int(best_q)
+        return round(p, 2), int(best_q)
     
     # No feasible solution found -> should not happen
     return (None, None)
