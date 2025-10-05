@@ -28,9 +28,7 @@ def nash_bargaining_solution(constraint_bot: int, constraint_user: int) -> Dict[
     profit_buyer = Offer.profit_buyer(price_star, quality_star, market_price, C.DEMAND_MIN, C.DEMAND_MAX)
     
     target_profit = math.floor(profit_supplier *100)/100 if production_cost == constraint_bot else math.floor(profit_buyer *100) /100
-    
-    print(f"[DEBUG nash_bargaining_solution] price_star: {price_star}, quality_star: {quality_star}, target_profit: {target_profit}")
-    
+        
     return {'profit': target_profit, 'offer': (price_star, quality_star)}
 
 
@@ -227,8 +225,9 @@ def optimal_solution_string(constraint_user: int,
                             constraint_bot: int,
                             evaluation: str,
                             offer: Offer) -> str:
+     
+     target = nash_bargaining_solution(constraint_bot, constraint_user)['profit'] # Debugging
     
-     print(f"[DEBUG optimal_solution_string] evaluation: {evaluation}, constraint_user: {constraint_user}, constraint_bot: {constraint_bot}, offer: {offer}")
      if evaluation == ACCEPT:
           return ''
      elif evaluation == OFFER_PRICE:
@@ -239,6 +238,5 @@ def optimal_solution_string(constraint_user: int,
           optimal_price, optimal_quality = optimal_wholesale_price_for_quality(offer, constraint_bot, constraint_user)
      elif evaluation == TOO_UNFAVOURABLE or evaluation == NOT_OFFER:
           optimal_price, optimal_quality = nash_bargaining_solution(constraint_bot, constraint_user)['offer']
-     print(f"[DEBUG optimal_solution_string] optimal_price: {optimal_price}, optimal_quality: {optimal_quality}")
-     print(PROMPTS['offer_string'] % (optimal_price, optimal_quality))
+     print(f"[DEBUG optimal_solution_string] optimal_price: {optimal_price}, optimal_quality: {optimal_quality}, target_profit: {target}")
      return PROMPTS['offer_string'] % (optimal_price, optimal_quality)

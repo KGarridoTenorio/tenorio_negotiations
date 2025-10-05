@@ -189,7 +189,7 @@ class Offer(dict):
         from live_bargaining.optimal import nash_bargaining_solution 
         nash_profit = nash_bargaining_solution(constraint_bot, constraint_user)['profit']
 
-        print(f"[DEBUG Offer.evaluate] Oferta: price={self.price}, quality={self.quality}, profit_bot={self.profit_bot}, profit_user={self.profit_user}, is_valid={self.is_valid}")
+        print(f"[DEBUG Offer.evaluate] Offer: price = {self.price}, quality = {self.quality}, profit_bot = {self.profit_bot}, profit_user = {self.profit_user}, is_valid = {self.is_valid}")
         if self.profit_bot >= nash_profit:
             result = ACCEPT
         elif self.is_valid:
@@ -214,7 +214,7 @@ class Offer(dict):
         else:
             result = NOT_OFFER
 
-        print(f"[DEBUG Offer.evaluate] Resultado evaluación: {result}")
+        print(f"[DEBUG Offer.evaluate] Result Evaluation: {result} \n")
         return result
         
     @staticmethod
