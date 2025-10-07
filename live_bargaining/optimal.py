@@ -47,9 +47,9 @@ def optimal_wholesale_price_for_quality(offer: Offer, constraint_bot, constraint
     bot_is_supplier = (constraint_bot == c)
 
     if bot_is_supplier:
-        best_p = math.ceil((target + c * q) / E *100) /100 #rounding up to ensure reaching target profit
+        best_p = math.ceil(((target + c * q) / E) *100) /100 #rounding up to ensure reaching target profit
     else:
-        best_p = math.floor(Pm - target / E *100) /100 #rounding down to ensure reaching target profit
+        best_p = math.floor((Pm - target / E) *100) /100 #rounding down to ensure reaching target profit
 
     if best_p > 0:
         return (best_p, q)
