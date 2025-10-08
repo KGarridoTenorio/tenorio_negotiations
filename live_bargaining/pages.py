@@ -8,7 +8,6 @@ from .constants import C
 from .models import Player, Group, Subsession, BotProfits
 from .utils import now_datetime, get_start_time
 
-
 class CustomWaitPage(WaitPage):
     template_name = 'live_bargaining/CustomWaitPage.html'
 
@@ -27,14 +26,12 @@ class CustomWaitPage(WaitPage):
             'this_is': f"{C.NUM_ROUNDS-player.round_number} negotiation rounds left.",
         }
 
-
 class MatchWaitPage(CustomWaitPage):
     wait_for_all_groups = True
 
     @staticmethod
     def after_all_players_arrive(subsession: Subsession):
         subsession.match_players()
-
 
 class IdleWaitPage(WaitPage):
     title_text = "You are idle..."
@@ -45,7 +42,6 @@ class IdleWaitPage(WaitPage):
     def is_displayed(player: Player) -> bool:
         return player.is_idle
 
-
 class BotProfitWaitPage(WaitPage):
     @staticmethod
     def is_displayed(player: Player) -> bool:
@@ -54,7 +50,6 @@ class BotProfitWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         BotProfits.select_profits(group)
-
 
 class Instructions(Page):
     form_model = 'player'
@@ -75,7 +70,6 @@ class Instructions(Page):
         return {
             'timeout_minutes': config['timeout_bargain'] // 60,
         }
-
 
 class ComprehensionCheck(Page):
     form_model = 'player'
@@ -159,7 +153,6 @@ class ComprehensionCheck(Page):
             player.comprehension_count += 1
             return explanation
 
-
 class Bargain(Page):
     @staticmethod
     def is_displayed(player: Player) -> bool:
@@ -177,12 +170,25 @@ class Bargain(Page):
             player.time_start = now_datetime()
         # Pass the actual start timestamp, in case the user reloads
         time_start = get_start_time(player)
+        
+        # Get demand range from session config
+        config = player.session.config
+        demand_min = config.get('demand_low', 20)  # Default fallback values
+        demand_max = config.get('demand_high', 80)
+        
         return {
             'id_in_group': player.id_in_group,
             'bot_opponent': player.bot_opponent,
             'startTime': time_start.timestamp() * 1000,
             'messages': player.chat_data,
             'offers': player.offers,
+            # Parameters for Decision Support System
+            'market_price': player.group.market_price,
+            'production_cost': player.group.production_cost,
+            'is_supplier': player.is_supplier,
+            # Dynamic demand calculation parameters
+            'demand_min': demand_min,
+            'demand_max': demand_max,
         }
 
     @staticmethod
@@ -210,7 +216,6 @@ class Bargain(Page):
     
     @staticmethod
     def get_params(player: Player) -> Tuple[str, str, int]:
-
         formatted_optimal_offer = player.group.optimal_offer
         if isinstance(formatted_optimal_offer, dict) and 'profit' in formatted_optimal_offer and 'offer' in formatted_optimal_offer:
                 profit = formatted_optimal_offer['profit']
@@ -226,11 +231,9 @@ class Bargain(Page):
             'formatted_optimal_offer': formatted_optimal_offer
         }
 
-
 class Results(Page):
     @staticmethod
     def get_params(player: Player) -> Tuple[str, str, int]:
-
         if player.field_maybe_none("price_accepted") is None:
             formatted_deal_price = ""
             formatted_deal_quantity = ""
@@ -242,7 +245,6 @@ class Results(Page):
             formatted_profits = f"€ {int(player.payoff)}"
             formatted_demand= player.group.demand
         
-
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
         player.participant.payoff = total_score / 9
 
@@ -305,7 +307,6 @@ class Results(Page):
             'formatted_bot_payment': f"€ {average_bot_profit:.2f}",
             'formatted_final_payment': f"€ {final_payoff:.2f}",
         }
-
 
 page_sequence = [
     Instructions,

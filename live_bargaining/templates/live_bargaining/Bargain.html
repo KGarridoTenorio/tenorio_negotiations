@@ -3,9 +3,12 @@
         href="{% static "live_bargaining/css/bargain.css" %}"/>
 {% endblock %}
 
+
 {% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{% static 'live_bargaining/js/bargain.js' %}"></script>
 {% endblock %}
+
 
 {% block title %}
   <p>
@@ -13,10 +16,12 @@
   </p>
 {% endblock %}
 
+
 {% block content %}
   <h4 class="time-left">
     Time left <span class="otree-timer__time-left"></span>
   </h4>
+
 
   {% if player.round_number == 1 %}
     <h5>
@@ -24,6 +29,7 @@
       Comprehension Check. This is your first Practice Round.
     </h5>
     <br/>
+
 
     <h5>IMPORTANT to read! - How to use the Interface? </h5>
     <p>
@@ -118,14 +124,45 @@
       </tr>
     </table>
 
+
     <h3>Nash Equilibrium Offer</h3>
       <p>
         {% formatted_optimal_offer %}
       </p>
-      <h3>Decision Support System</h3>
-      <p>
-        Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
-      </p>
+      
+    <h3>Decision Support System</h3>
+    <p>
+      Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
+    </p>
+    
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+      <div>
+        <label>Price for Analysis:</label>
+        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px;">
+      </div>
+      <div>
+        <label>Quantity for Analysis:</label>
+        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px;">
+      </div>
+      <div>
+        <button type="button" id="btn-display-profits" onclick="displayProfits()">
+          Display Profits
+        </button>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 30px;">
+      <div style="width: 400px; height: 400px;">
+        <canvas id="profitChart"></canvas>
+      </div>
+      <div id="profit-info" style="flex: 1;">
+        <h4>Expected Profits Analysis</h4>
+        <div id="profit-details">
+          <p>Enter price and quantity values to see the analysis.</p>
+        </div>
+      </div>
+    </div>
+    
   {% else %}
     <p>
       {% if player.is_supplier %}
@@ -136,6 +173,7 @@
       <strong>The Production Cost (PC) is {% group.production_cost %}€. </strong>
       {% endif %}
     </p>
+
 
     <h4>Chat</h4>
     <div class='otree-chat'>
@@ -177,6 +215,7 @@
         </td>
       </tr>
     </table>
+
 
     <h5>IMPORTANT! How to use the Interface? </h5>
     <p>
@@ -241,11 +280,39 @@
     <p>
       {% formatted_optimal_offer %}
     </p>
+    
     <h3>Decision Support System</h3>
     <p>
       Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
     </p>
     
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+      <div>
+        <label>Price for Analysis:</label>
+        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px;">
+      </div>
+      <div>
+        <label>Quantity for Analysis:</label>
+        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px;">
+      </div>
+      <div>
+        <button type="button" id="btn-display-profits" onclick="displayProfits()">
+          Display Profits
+        </button>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 30px;">
+      <div style="width: 400px; height: 400px;">
+        <canvas id="profitChart"></canvas>
+      </div>
+      <div id="profit-info" style="flex: 1;">
+        <h4>Expected Profits Analysis</h4>
+        <div id="profit-details">
+          <p>Enter price and quantity values to see the analysis.</p>
+        </div>
+      </div>
+    </div>
 
   {% endif %}
 {% endblock %}
