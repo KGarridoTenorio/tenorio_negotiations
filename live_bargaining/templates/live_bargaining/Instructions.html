@@ -12,139 +12,129 @@
 
 {% block content %}
   {% if player.round_number == 1 %}
-    <div class="card bg-light m-6">
-      <div class="card-body">
-        <div class="image-container">
-          <img src="{% static 'live_bargaining/image/Pellet.jpg' %}"
-               alt="Pellet Bag" width="240" align="right">
-        </div>
-        <p>
-          You will be negotiating with
-          {% if player.bot_opponent %}
-            an <strong>AI BOT</strong>
-          {% else %}
-            a <strong>Human</strong>
-          {% endif %}
-          counterpart in the upcoming round.
-        </p>
-
-        <p>Carefully read the instructions, as you will be financially rewarded for your performance.</p>
-        <section>
-            <h5>Overview:</h5>
-            <p>In this exercise, you will participate in multiple rounds of negotiations over a single item:  
-            <br> A 10kg bag of wood pellets.</p>
-            <ul>
-                <li>This item is produced by the Supplying company at different quality levels.</li>
-                <li>The Buying and Supplying company need to reach a deal in terms of Price & Quality</li>
-                <li>The Buying company will then sell that item in the market to consumers at a profit.</li>
-            </ul>
-            <p><strong>Note:</strong> A higher quality level agreed upon during the negotiation has consequences:
-                <li>For suppliers: higher quality is more costly to produce (PC).</li>
-                <li>For buyers: higher quality will be sold for a higher market selling price to consumers (MP).</li>
-            </p>
-            <p>Both the buying and supplying companies employ AI Bots and humans to negotiate with the representatives of the counterpart.</p>
-        </section>
-        <p>
-          For the rest of the experiment, you will play the role of a
-          <strong>{% player.role %}</strong>.
-        </p>
-        <section>
-          <h5>Objective:</h5>
-          <p>Your goal is to agree on a combination of Price and Quality that maximizes your profits.</p>
-          <h5>Terms of Negotiation:</h5>
-          <ul>
-              <li>Quality (Q) Ranges from 0 to 4 without decimals.</li>
-              <li>Negotiated Price (NP) Denoted in euros (€) without decimals.</li>
-          </ul>
-        <h5>Roles and Profit Calculation:</h5>
-        <p> Production Cost (PC) increases by 1€ for each unit increase in Quality.
-        <br>The Market Selling Price to the consumer (MP) increases by 1€ for each unit of Quality.
-        {% include_sibling 'table_formulas.html' %}
-        Example for the <strong>Supplier</strong>: If the base production cost is 1€ at a quality of 0, and you just agreed with the buyer 
-        on a negotiated price of 7€ and a quality of 2, then the Supplier profit = 7 - 2 - 1 = 4€
-        <br>
-        Example for the <strong>Buyer</strong>: If the base market selling price to consumer is 10€ at a quality of 0, and you just agreed 
-        with the supplier on a negotiated price of 7€ and a quality of 2, then your profit = 10 + 2 - 7 = 5€
-        </p>
-        <h5>Additional Instructions:</h5>
-      <ul>
-          <li>You will be randomly rematched each round with a different counterpart.</li>
-          <li>The base values of (MP) for buyers and (PC) for Suppliers are unknown to the counterpart and will vary randomly each round within the following ranges:
-              <ul>
-                  <li>Base MP could be 8, 9, or 10</li>
-                  <li>Base PC could be 1, 2, or 3</li>
-              </ul>
-          </li>
-      </ul>
-      </section>
-        <p>
-          <h5>Negotiation Rounds:</h5>
-        </p>
-        {% if player.is_single == 1 %}
-          <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
-            <li>
-              There will be 9 negotiation rounds. 
-            </li>
-            <li>
-              The average profit from these rounds will determine your financial reward. 
-            </li>
-            <li>
-              You will negotiate against an AI Bot.
-            </li>
-            <li>
-              To warm up, you start with
-              <strong>{% C.PRACTICE_ROUNDS %} practice</strong> rounds (these do not count yet towards your real financial reward). 
-            </li>
-          </ul>
-        {% else %}
-          <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
-            <li>
-              There will be {% C.TOTAL_NEGOTIATIONS %} negotiation rounds.
-            </li>
-            <li>
-              The average profit from these rounds will determine your financial reward.
-            </li>
-            <li>
-              You will negotiate in {% C.HUMAN_NEGOTIATIONS %} of these
-              rounds, while an AI bot will represent you in the remaining
-              {% C.BOT_NEGOTIATIONS %} rounds.
-            </li>
-            <li>
-              To warm up, you start with
-              <strong>{% C.PRACTICE_ROUNDS %} practice</strong> rounds (these do not count yet towards your real financial reward). 
-            </li>
-            <li>
-              In the initial 4 “real” rounds you will be the negotiator and will face either an AI bot or a human as counterpart. 
-            </li>
-            <li>
-              The subsequent 4 “real” rounds will feature the opposite scenario; 
-            </li>
-            <li>
-              &nbsp;If you initially negotiated against a human, you will negotiate against an AI bot, and vice versa.
-            </li>
-            <li>
-              &nbsp;In the final round, you will have the opportunity to choose either a human or an AI bot as your negotiating counterpart. 
-            </li>
-          </ul>
-        {% endif %}
-        <p>
-          You have {% timeout_minutes %} minutes per negotiation to reach an
-          agreement.
-          If the time runs out the outcome is an impasse (disagreement), and your profit will be zero. 
-        </p>
-        {% if player.role == C.ROLE_SUPPLIER %}
-          <p>
-            Click <strong> Next </strong> to go attempt an instructions comprehension check before starting the first
-            <strong>practice round</strong>.
-          </p>
-        {% else %}
-          <p>
-            Click <strong> Next </strong> to go attempt an instructions comprehension check before starting the first
-            <strong>practice round</strong>.
-          </p>
-        {% endif %}
+  <div class="card bg-light m-6">
+    <div class="card-body">
+      <div class="image-container">
+        <img src="{% static 'live_bargaining/image/Pellet.jpg' %}"
+             alt="Pellet Bag" width="240" align="right">
       </div>
+      <p>
+        You will be negotiating with
+        {% if player.bot_opponent %}
+          an <strong>AI BOT</strong>
+        {% else %}
+          a <strong>Human</strong>
+        {% endif %}
+        counterpart in the upcoming round.
+      </p>
+
+
+      <p>Carefully read the instructions, as you will be financially rewarded for your performance.</p>
+      <section>
+          <h5>Overview:</h5>
+          <p>In this exercise, you will participate in multiple rounds of negotiations over bags of pellets.</p>
+          <ul>
+              <li>The item is produced by the supplying company at a Production Cost (PC) of 3, 4, or 5.</li>
+              <li>This item is sold by a retailer company at a Retail Price (RP) of 10, 11, or 12.</li>
+              <li>The Retailer and Supplier negotiate via chat on Wholesale Price (w) & Quantity (q).</li>
+              <li>Production Cost (PC) and Retail Price (RP) will be known to both parties.</li>
+              <li>After each negotiation, Demand (D) will be randomly drawn [0, 100] (Equal Probability)</li>
+              <li>Supplier carries the risk of unsold inventory (any q > Demand will expire).</li>
+              <li>Both companies employ AI and humans to negotiate with counterpart representatives.</li>
+              <li>You will be randomly rematched each round with a different counterpart.</li>
+          </ul>
+      </section>
+      <p>
+        For the rest of the experiment, you will play the role of a
+        <strong>{% player.role %}</strong>.
+      </p>
+      <section>
+        <h5>Objective:</h5>
+        <p>Your goal is to agree on Wholesale Price (w) and Quantity (q) maximizing your profits.</p>
+        <h5>Terms of Negotiation:</h5>
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+              <td>
+                <p><strong>Supplier Profit</strong> = (w - PC) * min(q, D) + PC * min(D-q, 0)</p>
+                <p><strong>Example:</strong> Your Production Cost (PC) is 3€, and you just agreed with the retailer on a wholesale price (w) of 7€ and a quantity (q) of 50:</p>
+                <ul>
+                  <li>Demand (D) is 75: (7-3) * min(50, 75) + 3 * min(75-50, 0) = 4*50 - 0 = 200€</li>
+                  <li>Demand (D) is 25: (7-3) * min(50, 25) + 3 * min(25-50, 0) = 4*25 - 3*25 = 25€</li>
+                  <li>Demand (D) is 50: (7-3) * min(50, 50) + 3 * min(50-50, 0) = 4*50 - 0 = 200€</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><strong>Retailer Profit</strong> = (RP - w) * min(q, D)</p>
+                <p><strong>Example:</strong> Your Retail Price (RP) is 11€, and you just agreed with the supplier on a wholesale price (w) of 7€ and a quantity (q) of 50:</p>
+                <ul>
+                  <li>Demand (D) is 75: (11-7) * min(50, 75) = 200€</li>
+                  <li>Demand (D) is 25: (11-7) * min(50, 25) = 100€</li>
+                  <li>Demand (D) is 50: (11-7) * min(50, 50) = 200€</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </section>
+      <p>
+        <h5>Negotiation Rounds:</h5>
+      </p>
+      {% if player.is_single == 1 %}
+        <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
+          <li>
+            12 rounds; The average profit * 0.02 from these rounds determine your financial reward. 
+          </li>
+          <li>
+            You will negotiate against an AI Bot.
+          </li>
+          <li>
+            To warm up, you start with
+            <strong>2 practice</strong> rounds (not counting towards your financial reward). 
+          </li>
+        </ul>
+      {% else %}
+        <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
+          <li>
+            12 rounds; The average profit * 0.02 from these rounds determine your financial reward.
+          </li>
+          <li>
+            You will personally negotiate in 8 of these rounds, while an AI will represent you in the remaining 4 rounds.
+          </li>
+          <li>
+            To warm up, you start with
+            <strong>2 practice</strong> rounds (not counting towards your financial reward). 
+          </li>
+          <li>
+            In the initial 4 "real" rounds you will be the negotiator and will face either an AI or a human as counterpart. 
+          </li>
+          <li>
+            The subsequent 4 "real" rounds will feature the opposite scenario; 
+          </li>
+          <li>
+            If you initially negotiated against a human, you will negotiate against an AI bot, and vice versa.
+          </li>
+        </ul>
+      {% endif %}
+      <p>
+        You have 3 minutes per negotiation to reach an agreement.
+        If the time runs out the outcome is an impasse (disagreement), and your profit will be zero. 
+      </p>
+      {% if player.role == C.ROLE_SUPPLIER %}
+        <p>
+          Click <strong> Next </strong> to attempt an instructions comprehension check before starting the first
+          <strong>practice round</strong>.
+        </p>
+      {% else %}
+        <p>
+          Click <strong> Next </strong> to attempt an instructions comprehension check before starting the first
+          <strong>practice round</strong>.
+        </p>
+      {% endif %}
     </div>
+  </div>
   {% elif player.round_number == 2 %}
     <p>
       You will be negotiating with
