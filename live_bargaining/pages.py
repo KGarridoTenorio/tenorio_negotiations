@@ -173,7 +173,7 @@ class Bargain(Page):
         
         # Get demand range from session config
         config = player.session.config
-        demand_min = config.get('demand_low', 0)
+        demand_min = config.get('demand_low', 0)  # Default fallback values
         demand_max = config.get('demand_high', 100)
         
         return {
@@ -182,13 +182,6 @@ class Bargain(Page):
             'startTime': time_start.timestamp() * 1000,
             'messages': player.chat_data,
             'offers': player.offers,
-            # Parameters for Decision Support System
-            'market_price': player.group.market_price,
-            'production_cost': player.group.production_cost,
-            'is_supplier': player.is_supplier,
-            # Dynamic demand calculation parameters
-            'demand_min': demand_min,
-            'demand_max': demand_max,
             # Parameters for Decision Support System
             'market_price': player.group.market_price,
             'production_cost': player.group.production_cost,
@@ -251,7 +244,6 @@ class Results(Page):
             formatted_deal_quantity = f"{player.quality_accepted}"
             formatted_profits = f"€ {int(player.payoff)}"
             formatted_demand= player.group.demand
-        
         
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
         player.participant.payoff = total_score / 9
