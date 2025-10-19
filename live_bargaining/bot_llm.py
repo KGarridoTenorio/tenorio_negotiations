@@ -80,9 +80,12 @@ class BotLLM:
         if content.count('"') > 1:
             start = content.find('"') + 1
             end = content.rfind('"')
-            content = content[start:end]
+            x = content[start:end]
+            # Prevent cases in which user introduces parameters inside ""
+            if len(x) > 30:
+                content = x
         else:
-            # Remove 'System" starts
+        # Remove 'System" starts
             if content.lower().startswith("system:"):
                 content = content[7:].strip()
             if content.lower().startswith("system,"):
@@ -93,15 +96,28 @@ class BotLLM:
         # Remove content within square brackets
         content = remove_inner(content, '[', ']')
 
-        # Remove text before "list_of_offers_to_choose_from"
-        if 'list_of_offers_to_choose_from' in content:
-            split_list = content.split('list_of_offers_to_choose_from:', 1)
+        s = 0
+
+        # Remove text before "optimal_offer"
+        if 'optimal_offer' in content and s != 3:
+            split_list = content.split('optimal_offer:', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        s = 0
 
         # Remove text before the first colon
-        if ':' in content:
+        while ':' in content and s != 3:
             split_list = content.split(':', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        s = 0
+
+        while 'Here is the most efficient offer' in content and s != 3:
+            split_list = content.split('Here is the most efficient offer:', 1)
+            content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
 
         # Split the content at line breaks and take only the first part
         content = content.split('\n', 1)[0]
