@@ -238,5 +238,7 @@ def optimal_solution_string(constraint_user: int,
         optimal_price, optimal_quality = optimal_wholesale_price_for_quality(offer, constraint_bot, constraint_user)
     elif evaluation == TOO_UNFAVOURABLE or evaluation == NOT_OFFER:
         optimal_price, optimal_quality = nash_bargaining_solution(constraint_bot, constraint_user)['offer']
+    elif evaluation == INVALID_OFFER:
+        return (None, None)
     print(f"[DEBUG optimal_solution_string] optimal_price: {optimal_price}, optimal_quality: {optimal_quality}, target_profit: {target}")
     return PROMPTS['offer_string'] % (optimal_price, optimal_quality)
