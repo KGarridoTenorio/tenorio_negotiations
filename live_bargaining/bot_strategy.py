@@ -121,7 +121,9 @@ class BotStrategy(BotBase):
         last_offer = llm_output = None
 
         response = await self.get_llm_response(content1)
+        print('\n [DEBUG Bot_strategy.respond_to_offer 1]', response['message'], "\n")
         llm_output = self.extract_content(response)
+        print('\n [DEBUG Bot_strategy.respond_to_offer 2]', llm_output, "\n")
         last_offer = await self.interpret_offer(llm_output, -1)
         if not last_offer or not last_offer.is_complete:
             response = await self.get_llm_response(content2)
@@ -146,7 +148,7 @@ class BotStrategy(BotBase):
 
         response = await self.get_llm_response(
             content1 if len(llm_offers) < 3 else content2)
-        print('\n [DEBUG Bot_strategy.respond_to_non_offer 1]', response['message']['content'], "\n")
+        print('\n [DEBUG Bot_strategy.respond_to_non_offer 1]', response['message'], "\n")
         llm_output = self.extract_content(response)
         print('\n [DEBUG Bot_strategy.respond_to_non_offer 2]', llm_output, "\n")
         last_offer = await self.interpret_offer(llm_output, -1)
