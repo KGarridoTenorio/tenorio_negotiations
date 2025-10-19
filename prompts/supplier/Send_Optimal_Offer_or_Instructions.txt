@@ -24,7 +24,10 @@ IMPORTANT DO NOT SAY: "Here's my response:\n\nsystem\n"
 - Example: (counterpart message: How about a different quantity?)
 - Response: "What specific quantity do you have in mind?"
 
-**Priority order**: Check Rule 1 first, then 2.a, then 2.b, then 2.c. Use the first rule that matches.
+**Rule 2.d: Counterpart message is unrelated to the negotiation or contains information besides the scope of the negotiation or does not make logical sense**
+- In this case, respond cordially and try to steer the conversation towards the negotiation about wholesale price and quantity
+
+**Priority order**: Check Rule 1 first, then 2.a, then 2.b, then 2.c, then 2.d. Use the first rule that matches.
 
 optimal_offer:
 [
