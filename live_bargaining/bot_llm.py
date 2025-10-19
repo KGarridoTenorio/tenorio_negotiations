@@ -121,8 +121,10 @@ class BotLLM:
 
         # Split the content at line breaks and take only the first part
         content = content.split('\n', 1)[0]
+        content = content.strip()
+        content = content.strip('"')
 
-        return content.strip()
+        return content
 
     ############################################################################
     # Methods that use the LLMs
