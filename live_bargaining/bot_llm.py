@@ -210,15 +210,16 @@ class BotLLM:
         if idx is None:
             idx = self.config['idx']
 
-        # Make the call
-
+        # If user message contains at least a number -> let LLM interpret the offer
         if re.search(r'\d', message):
             messages = [{'role': 'user',
                         'content': PROMPTS['understanding_offer'] + message}]
+            # Make the call
             response = await self.client.chat(model=self.config['llm_reader'],
                                             messages=messages)
             llm_output = response['message']['content']
             print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
+        # Otherwise, output an empty offer [,] directly
         else:
             llm_output = '[,]'
             print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
