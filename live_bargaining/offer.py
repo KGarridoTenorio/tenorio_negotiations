@@ -60,7 +60,7 @@ class Offer(dict):
     @property
     def price_in_range(self) -> bool:
         #return C.PRICE_MIN <= self.price <= C.PRICE_MAX
-        if type(self.price) == 'float':
+        if isinstance(self.price, float):
             return round(self.price, 2) in C.PRICE_RANGE
         else:
             return False
