@@ -211,11 +211,17 @@ class BotLLM:
             idx = self.config['idx']
 
         # Make the call
-        messages = [{'role': 'user',
-                     'content': PROMPTS['understanding_offer'] + message}]
-        response = await self.client.chat(model=self.config['llm_reader'],
-                                          messages=messages)
-        llm_output = response['message']['content']
+
+        if re.search(r'\d', message):
+            messages = [{'role': 'user',
+                        'content': PROMPTS['understanding_offer'] + message}]
+            response = await self.client.chat(model=self.config['llm_reader'],
+                                            messages=messages)
+            llm_output = response['message']['content']
+            print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
+        else:
+            llm_output = '[,]'
+            print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
 
         # Regular expression to find the pattern [Price, Quality]
         price = quality = None
