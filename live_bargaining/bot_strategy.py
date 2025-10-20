@@ -141,14 +141,21 @@ class BotStrategy(BotBase):
         self.send_response(llm_output)
 
     async def respond_to_non_offer(self, evaluation: str):
+
         content1 = self.get_respond_prompt(evaluation)
-        content2 = self.get_respond_prompt("From_0")
+
+        # When evaluation was invalid_offer it raised an error (i could not identify it)
+        try:
+            content2 = self.get_respond_prompt("From_0")
+        except:
+            pass
 
         llm_offers = []
         last_offer = llm_output = None
 
         response = await self.get_llm_response(
             content1 if len(llm_offers) < 3 else content2)
+        
         print('\n[DEBUG Bot_strategy.respond_to_non_offer 1 - Bot internal message]', response['message'], "\n")
         llm_output = self.extract_content(response)
         print('\n[DEBUG Bot_strategy.respond_to_non_offer 2 - LLM output]', llm_output, "\n")
