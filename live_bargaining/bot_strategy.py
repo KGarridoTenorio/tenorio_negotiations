@@ -121,9 +121,9 @@ class BotStrategy(BotBase):
         last_offer = llm_output = None
 
         response = await self.get_llm_response(content1)
-        print('\n [DEBUG Bot_strategy.respond_to_offer 1]', response['message'], "\n")
+        print('\n [DEBUG Bot_strategy.respond_to_offer 1 - Bot internal message]', response['message'], "\n")
         llm_output = self.extract_content(response)
-        print('\n [DEBUG Bot_strategy.respond_to_offer 2]', llm_output, "\n")
+        print('\n [DEBUG Bot_strategy.respond_to_offer 2 - LLM output]', llm_output, "\n")
         last_offer = await self.interpret_offer(llm_output, -1)
         if not last_offer or not last_offer.is_complete:
             response = await self.get_llm_response(content2)
@@ -135,6 +135,7 @@ class BotStrategy(BotBase):
         else:
             last_offer.profit_bot = last_offer.profit_user = 0
         llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+        print('[DEBUG Bot_strategyy.respond_to_offer 3 - Evaluation of bot offer]')
         evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
         self.send_response(llm_output)
@@ -148,9 +149,9 @@ class BotStrategy(BotBase):
 
         response = await self.get_llm_response(
             content1 if len(llm_offers) < 3 else content2)
-        print('\n [DEBUG Bot_strategy.respond_to_non_offer 1]', response['message'], "\n")
+        print('\n[DEBUG Bot_strategy.respond_to_non_offer 1 - Bot internal message]', response['message'], "\n")
         llm_output = self.extract_content(response)
-        print('\n [DEBUG Bot_strategy.respond_to_non_offer 2]', llm_output, "\n")
+        print('\n[DEBUG Bot_strategy.respond_to_non_offer 2 - LLM output]', llm_output, "\n")
         last_offer = await self.interpret_offer(llm_output, -1)
 
         if last_offer.is_complete:
@@ -158,6 +159,7 @@ class BotStrategy(BotBase):
         else:
             last_offer.profit_bot = last_offer.profit_user = 0
         llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+        print('[DEBUG Bot_strategyy.respond_to_non_offer 3 - Evaluation of bot offer]')
         evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
         self.send_response(llm_output)
