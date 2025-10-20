@@ -1,4 +1,5 @@
 import asyncio
+import re
 import logging
 from typing import Any, Dict, Optional
 
@@ -69,6 +70,10 @@ class BotLLM:
                 else:
                     break
             return string
+        
+        def clean_leading_non_alphanum(s: str) -> str:
+            # Remove all leading characters that are not a-z, A-Z, or 0-9
+            return re.sub(r'^[^a-zA-Z0-9]+', '', s)
 
         try:
             content: str = response['message']['content'].strip()
@@ -100,7 +105,7 @@ class BotLLM:
 
         # Remove text before "optimal_offer"
         if 'optimal_offer' in content and s != 3:
-            split_list = content.split('optimal_offer:', 1)
+            split_list = content.split('optimal_offer', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
             s+=1
 
@@ -114,11 +119,21 @@ class BotLLM:
 
         s = 0
 
+        # Remove internal thoughts
         while 'Here is the most efficient offer' in content and s != 3:
-            split_list = content.split('Here is the most efficient offer:', 1)
+            split_list = content.split('Here is the most efficient offer', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
             s+=1
 
+        s = 0
+
+        while 'response' in content and s != 3:
+            split_list = content.split('response', 1)
+            content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        # Cleaning text from leaading non-alphanumeric characters
+        content = clean_leading_non_alphanum(content)
         # Split the content at line breaks and take only the first part
         content = content.split('\n', 1)[0]
         content = content.strip()
