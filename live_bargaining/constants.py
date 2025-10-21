@@ -43,7 +43,7 @@ class C(RoleConstants):
     PRICE_MIN = 1.0
     PRICE_MAX = 12.0
     PRICE_RANGE = [x * 0.01 for x in range(300, 1201)]  # Generates 3.00 to 12.00 with a step of 0.01
-    QUALITY_RANGE = range(0, 101)
+    QUALITY_RANGE = range(1, 101)
     DEMAND_MIN = 0
     DEMAND_MAX = max(QUALITY_RANGE)
 
