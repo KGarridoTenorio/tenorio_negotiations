@@ -99,7 +99,7 @@ class BotLLM:
         # Remove text within parentheses if no quotes are found
         content = remove_inner(content, '(', ')')
         # Remove content within square brackets
-        # content = remove_inner(content, '[', ']')
+        #content = remove_inner(content, '[', ']')
 
         s = 0
 
