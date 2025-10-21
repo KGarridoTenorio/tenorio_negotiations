@@ -1,6 +1,5 @@
 import time
 from typing import Any, Union
-
 from .constants import C
 
 ACCEPT = 'accept'
@@ -59,8 +58,10 @@ class Offer(dict):
 
     @property
     def price_in_range(self) -> bool:
-        #return C.PRICE_MIN <= self.price <= C.PRICE_MAX
-        return self.price in C.PRICE_RANGE
+        if self.price is None:
+            return False
+        # return C.PRICE_MIN <= self.price <= C.PRICE_MAX
+        return round(self.price, 2) in C.PRICE_RANGE
 
     @property
     def quality_in_range(self) -> bool:

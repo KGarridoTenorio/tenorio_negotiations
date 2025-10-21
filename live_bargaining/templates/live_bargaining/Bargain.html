@@ -132,34 +132,34 @@
       
     <h3>Decision Support System</h3>
     <p>
-      Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
+      Enter a Wholesale Price and Quantity combination to see how profits vary with demand for both parties.
     </p>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+    <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: end;">
       <div>
-        <label>Price for Analysis:</label>
-        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px;">
+        <label for="analysisPrice" style="display: block; margin-bottom: 5px;">Price for Analysis:</label>
+        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px; padding: 5px;">
       </div>
       <div>
-        <label>Quantity for Analysis:</label>
-        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px;">
+        <label for="analysisQuantity" style="display: block; margin-bottom: 5px;">Quantity for Analysis:</label>
+        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px; padding: 5px;">
       </div>
       <div>
-        <button type="button" id="btn-display-profits" onclick="displayProfits()">
-          Display Profits
+        <button type="button" id="btn-display-profits" onclick="plotProfitsVsDemand()" disabled
+                style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px;">
+          Plot Profits vs Demand
         </button>
       </div>
     </div>
     
-    <div style="display: flex; gap: 30px;">
-      <div style="width: 400px; height: 400px;">
-        <canvas id="profitChart"></canvas>
-      </div>
-      <div id="profit-info" style="flex: 1;">
-        <h4>Expected Profits Analysis</h4>
-        <div id="profit-details">
-          <p>Enter price and quantity values to see the analysis.</p>
-        </div>
+    <div style="width: 100%; height: 420px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px;">
+      <canvas id="profitLineChart"></canvas>
+    </div>
+    
+    <div id="profit-info" style="margin-top: 20px;">
+      <h4>Profit Analysis</h4>
+      <div id="profit-details">
+        <p>Enter price and quantity values above and click "Plot Profits vs Demand" to see the analysis.</p>
       </div>
     </div>
     
@@ -283,34 +283,34 @@
     
     <h3>Decision Support System</h3>
     <p>
-      Enter a Wholesale Price and Quantity combination in the boxes below to see the expected profits for you and your counterpart.
+      Enter a Wholesale Price and Quantity combination to see how profits vary with demand for both parties.
     </p>
     
-    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+    <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: end;">
       <div>
-        <label>Price for Analysis:</label>
-        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px;">
+        <label for="analysisPrice" style="display: block; margin-bottom: 5px;">Price for Analysis:</label>
+        <input type="number" id="analysisPrice" placeholder="Enter price" style="width: 120px; padding: 5px;">
       </div>
       <div>
-        <label>Quantity for Analysis:</label>
-        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px;">
+        <label for="analysisQuantity" style="display: block; margin-bottom: 5px;">Quantity for Analysis:</label>
+        <input type="number" id="analysisQuantity" placeholder="Enter quantity" style="width: 120px; padding: 5px;">
       </div>
       <div>
-        <button type="button" id="btn-display-profits" onclick="displayProfits()">
-          Display Profits
+        <button type="button" id="btn-display-profits" onclick="plotProfitsVsDemand()" disabled
+                style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px;">
+          Plot Profits vs Demand
         </button>
       </div>
     </div>
     
-    <div style="display: flex; gap: 30px;">
-      <div style="width: 400px; height: 400px;">
-        <canvas id="profitChart"></canvas>
-      </div>
-      <div id="profit-info" style="flex: 1;">
-        <h4>Expected Profits Analysis</h4>
-        <div id="profit-details">
-          <p>Enter price and quantity values to see the analysis.</p>
-        </div>
+    <div style="width: 100%; height: 420px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px;">
+      <canvas id="profitLineChart"></canvas>
+    </div>
+    
+    <div id="profit-info" style="margin-top: 20px;">
+      <h4>Profit Analysis</h4>
+      <div id="profit-details">
+        <p>Enter price and quantity values above and click "Plot Profits vs Demand" to see the analysis.</p>
       </div>
     </div>
 

@@ -1,4 +1,5 @@
 import asyncio
+import re
 import logging
 from typing import Any, Dict, Optional
 
@@ -69,6 +70,10 @@ class BotLLM:
                 else:
                     break
             return string
+        
+        def clean_leading_non_alphanum(s: str) -> str:
+            # Remove all leading characters that are not a-z, A-Z, or 0-9
+            return re.sub(r'^[^a-zA-Z0-9]+', '', s)
 
         try:
             content: str = response['message']['content'].strip()
@@ -80,9 +85,12 @@ class BotLLM:
         if content.count('"') > 1:
             start = content.find('"') + 1
             end = content.rfind('"')
-            content = content[start:end]
+            x = content[start:end]
+            # Prevent cases in which user introduces parameters inside ""
+            if len(x) > 30:
+                content = x
         else:
-            # Remove 'System" starts
+        # Remove 'System" starts
             if content.lower().startswith("system:"):
                 content = content[7:].strip()
             if content.lower().startswith("system,"):
@@ -93,20 +101,45 @@ class BotLLM:
         # Remove content within square brackets
         content = remove_inner(content, '[', ']')
 
-        # Remove text before "list_of_offers_to_choose_from"
-        if 'list_of_offers_to_choose_from' in content:
-            split_list = content.split('list_of_offers_to_choose_from:', 1)
+        s = 0
+
+        # Remove text before "optimal_offer"
+        if 'optimal_offer' in content and s != 3:
+            split_list = content.split('optimal_offer', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        s = 0
 
         # Remove text before the first colon
-        if ':' in content:
+        while ':' in content and s != 3:
             split_list = content.split(':', 1)
             content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
 
+        s = 0
+
+        # Remove internal thoughts
+        while 'Here is the most efficient offer' in content and s != 3:
+            split_list = content.split('Here is the most efficient offer', 1)
+            content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        s = 0
+
+        while 'response' in content and s != 3:
+            split_list = content.split('response', 1)
+            content = split_list[1].strip() if len(split_list) > 1 else content
+            s+=1
+
+        # Cleaning text from leaading non-alphanumeric characters
+        content = clean_leading_non_alphanum(content)
         # Split the content at line breaks and take only the first part
         content = content.split('\n', 1)[0]
+        content = content.strip()
+        content = content.strip('"')
 
-        return content.strip()
+        return content
 
     ############################################################################
     # Methods that use the LLMs
@@ -177,12 +210,19 @@ class BotLLM:
         if idx is None:
             idx = self.config['idx']
 
-        # Make the call
-        messages = [{'role': 'user',
-                     'content': PROMPTS['understanding_offer'] + message}]
-        response = await self.client.chat(model=self.config['llm_reader'],
-                                          messages=messages)
-        llm_output = response['message']['content']
+        # If user message contains at least a number -> let LLM interpret the offer
+        if re.search(r'\d', message):
+            messages = [{'role': 'user',
+                        'content': PROMPTS['understanding_offer'] + message}]
+            # Make the call
+            response = await self.client.chat(model=self.config['llm_reader'],
+                                            messages=messages)
+            llm_output = response['message']['content']
+            print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
+        # Otherwise, output an empty offer [,] directly
+        else:
+            llm_output = '[,]'
+            print('\n[DEBUG Bot_llm.interpret_offer]', llm_output + '\n')
 
         # Regular expression to find the pattern [Price, Quality]
         price = quality = None

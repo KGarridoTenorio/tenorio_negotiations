@@ -15,7 +15,7 @@ const btnAccept = document.getElementById('btn-accept');
 const analysisPrice = document.getElementById('analysisPrice');
 const analysisQuantity = document.getElementById('analysisQuantity');
 const btnDisplayProfits = document.getElementById('btn-display-profits');
-let profitChart = null;
+let profitLineChart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (js_vars.bot_opponent === true) {
@@ -74,9 +74,18 @@ function liveRecv(data) {
 ////////////////////////////////////////////////////////////////////////////////
 function initializeDecisionSupport() {
   // Add event listeners for analysis inputs
-  if (analysisPrice && analysisQuantity) {
+  if (analysisPrice && analysisQuantity && btnDisplayProfits) {
     analysisPrice.addEventListener('input', updateDisplayProfitsButton);
     analysisQuantity.addEventListener('input', updateDisplayProfitsButton);
+    
+    // Ensure button starts disabled
+    btnDisplayProfits.disabled = true;
+  } else {
+    console.warn('DSS elements not found:', {
+      analysisPrice: !!analysisPrice,
+      analysisQuantity: !!analysisQuantity,
+      btnDisplayProfits: !!btnDisplayProfits
+    });
   }
 }
 
@@ -87,133 +96,171 @@ function updateDisplayProfitsButton() {
     
     if (!isNaN(priceValue) && !isNaN(quantityValue) && priceValue > 0 && quantityValue > 0) {
       btnDisplayProfits.disabled = false;
+      btnDisplayProfits.style.backgroundColor = '#007bff';
+      btnDisplayProfits.style.cursor = 'pointer';
     } else {
       btnDisplayProfits.disabled = true;
+      btnDisplayProfits.style.backgroundColor = '#6c757d';
+      btnDisplayProfits.style.cursor = 'not-allowed';
     }
   }
 }
 
-// Dynamic demand calculation based on quality (quantity)
-function calculateDemand(quality) {
-  const demandMin = js_vars.demand_min;
-  const demandMax = js_vars.demand_max;
+// Expected demand calculation based on quality (quantity) - same formula as before
+function expectedDemandFromQuality(quality) {
+  const demandMin = js_vars.demand_min || 0;
+  const demandMax = js_vars.demand_max || 100;
   
-  // Formula: ((quality^2 - demand_min^2) / 2 + quality * (demand_max - quality)) / (demand_max - demand_min)
   const numerator = ((quality * quality - demandMin * demandMin) / 2 + quality * (demandMax - quality));
   const denominator = (demandMax - demandMin);
   const demand = numerator / denominator;
   
-  // Ensure demand is within reasonable bounds
   return Math.max(0, Math.min(demandMax, demand));
 }
 
-function calculateProfits(price, quantity) {
-  // Get parameters from Django template variables
-  const marketPrice = js_vars.market_price;
-  const productionCost = js_vars.production_cost;
-  const isSupplier = js_vars.is_supplier;
-  
-  // Calculate dynamic demand based on quantity (quality)
-  const expectedSales = calculateDemand(quantity);
-  
-  let myProfit, otherProfit;
-  let myRole, otherRole;
-  
-  if (isSupplier) {
-    // I am supplier, other is buyer
-    // CORRECT FORMULAS:
-    // profit_supplier = (price × expected_sales) - (production_cost × quality)
-    // profit_buyer = (market_price - price) × expected_sales
-    myProfit = (price * expectedSales) - (productionCost * quantity);
-    otherProfit = (marketPrice - price) * expectedSales;
-    myRole = "Supplier (You)";
-    otherRole = "Buyer (Counterpart)";
-  } else {
-    // I am buyer, other is supplier
-    // CORRECT FORMULAS:
-    // profit_buyer = (market_price - price) × expected_sales
-    // profit_supplier = (price × expected_sales) - (production_cost × quality)
-    myProfit = (marketPrice - price) * expectedSales;
-    otherProfit = (price * expectedSales) - (productionCost * quantity);
-    myRole = "Buyer (You)";
-    otherRole = "Supplier (Counterpart)";
+// Build profit data series for line chart
+function buildProfitSeries(graph_price, graph_quantity) {
+  const p = parseFloat(graph_price);
+  const q = parseInt(graph_quantity);
+  const marketPrice = js_vars.market_price || 11;
+  const productionCost = js_vars.production_cost || 4;
+  const demandMin = js_vars.demand_min || 0;
+  const demandMax = js_vars.demand_max || 100;
+
+  const demandAxis = [];
+  const supplierProfits = [];
+  const buyerProfits = [];
+
+  // Generate profit data for each demand level
+  for (let d = demandMin; d <= demandMax; d++) {
+    const expectedSales = Math.min(q, d);
+    
+    // Correct profit formulas
+    const supplierProfit = (p * expectedSales) - (productionCost * q);
+    const buyerProfit = (marketPrice - p) * expectedSales;
+    
+    demandAxis.push(d);
+    supplierProfits.push(supplierProfit);
+    buyerProfits.push(buyerProfit);
   }
-  
+
+  // Calculate expected profits at expected demand point
+  const expectedDemand = expectedDemandFromQuality(q);
+  const expectedSales = Math.min(q, expectedDemand);
+  const expectedSupplierProfit = (p * expectedSales) - (productionCost * q);
+  const expectedBuyerProfit = (marketPrice - p) * expectedSales;
+
   return {
-    myProfit: myProfit,
-    otherProfit: otherProfit,
-    myRole: myRole,
-    otherRole: otherRole,
-    expectedSales: expectedSales,
-    marketPrice: marketPrice,
-    productionCost: productionCost,
-    demandMin: js_vars.demand_min,
-    demandMax: js_vars.demand_max
+    demandAxis,
+    supplierProfits,
+    buyerProfits,
+    expectedDemand,
+    expectedSupplierProfit,
+    expectedBuyerProfit
   };
 }
 
-function displayProfits() {
+// Main function called by the button - make it global
+function plotProfitsVsDemand() {
+  console.log('plotProfitsVsDemand called');
+  
+  if (!analysisPrice || !analysisQuantity) {
+    alert('Analysis inputs not found! Please check the HTML.');
+    return;
+  }
+
   const priceValue = parseFloat(analysisPrice.value);
   const quantityValue = parseInt(analysisQuantity.value);
-  
+
+  console.log('Input values:', { priceValue, quantityValue });
+
   if (isNaN(priceValue) || isNaN(quantityValue) || priceValue <= 0 || quantityValue <= 0) {
     alert('Please enter valid positive values for price and quantity.');
     return;
   }
-  
-  const profits = calculateProfits(priceValue, quantityValue);
-  
-  // Update profit chart
-  updateProfitChart(profits);
-  
-  // Update profit details
-  updateProfitDetails(profits, priceValue, quantityValue);
-}
 
-function updateProfitChart(profits) {
-  const ctx = document.getElementById('profitChart');
-  if (!ctx) return;
-  
-  // Destroy existing chart if it exists
-  if (profitChart) {
-    profitChart.destroy();
-  }
-  
-  // Only show chart if there are positive total profits
-  const totalProfit = profits.myProfit + profits.otherProfit;
-  if (totalProfit <= 0) {
-    ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+  const {
+    demandAxis,
+    supplierProfits,
+    buyerProfits,
+    expectedDemand,
+    expectedSupplierProfit,
+    expectedBuyerProfit
+  } = buildProfitSeries(priceValue, quantityValue);
+
+  const ctx = document.getElementById('profitLineChart');
+  if (!ctx) {
+    alert('Canvas element "profitLineChart" not found! Please check the HTML.');
+    console.error('Canvas element profitLineChart not found!');
     return;
   }
-  
-  // Handle negative profits for display
-  const myProfitForChart = Math.max(0, profits.myProfit);
-  const otherProfitForChart = Math.max(0, profits.otherProfit);
-  
-  profitChart = new Chart(ctx, {
-    type: 'pie',
+
+  console.log('Creating chart with data points:', demandAxis.length);
+
+  // Destroy existing chart if it exists
+  if (profitLineChart) {
+    profitLineChart.destroy();
+  }
+
+  profitLineChart = new Chart(ctx, {
+    type: 'line',
     data: {
-      labels: [profits.myRole, profits.otherRole],
-      datasets: [{
-        data: [myProfitForChart, otherProfitForChart],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.8)',   // Blue for user
-          'rgba(255, 99, 132, 0.8)'    // Red for counterpart
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 99, 132, 1)'
-        ],
-        borderWidth: 2
-      }]
+      labels: demandAxis,
+      datasets: [
+        {
+          label: 'Supplier Profit',
+          data: supplierProfits,
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.1)',
+          borderWidth: 2,
+          tension: 0.1,
+          pointRadius: 0,
+          fill: false
+        },
+        {
+          label: 'Buyer Profit',
+          data: buyerProfits,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.1)',
+          borderWidth: 2,
+          tension: 0.1,
+          pointRadius: 0,
+          fill: false
+        },
+        // Expected profit horizontal lines (dashed)
+        {
+          label: 'E[π_Supplier]',
+          data: demandAxis.map(() => expectedSupplierProfit),
+          borderColor: 'rgba(255, 99, 132, 0.6)',
+          backgroundColor: 'rgba(255, 99, 132, 0.1)',
+          borderWidth: 1,
+          borderDash: [6, 6],
+          pointRadius: 0,
+          fill: false
+        },
+        {
+          label: 'E[π_Buyer]',
+          data: demandAxis.map(() => expectedBuyerProfit),
+          borderColor: 'rgba(54, 162, 235, 0.6)',
+          backgroundColor: 'rgba(54, 162, 235, 0.1)',
+          borderWidth: 1,
+          borderDash: [6, 6],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
       plugins: {
         title: {
           display: true,
-          text: 'Expected Profits Distribution'
+          text: `Profit vs Demand (Price: €${priceValue.toFixed(2)}, Quantity: ${quantityValue})`
         },
         legend: {
           display: true,
@@ -222,58 +269,89 @@ function updateProfitChart(profits) {
         tooltip: {
           callbacks: {
             label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = myProfitForChart + otherProfitForChart;
-              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-              return `${label}: €${value.toFixed(2)} (${percentage}%)`;
+              return `${context.dataset.label}: €${context.parsed.y.toFixed(2)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Demand'
+          },
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Profit (€)'
+          },
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)'
+          },
+          ticks: {
+            callback: function(value) {
+              return '€' + value;
             }
           }
         }
       }
     }
   });
+
+  console.log('Chart created successfully');
+
+  // Update profit details
+  updateProfitDetails(priceValue, quantityValue, expectedDemand, expectedSupplierProfit, expectedBuyerProfit);
 }
 
-function updateProfitDetails(profits, price, quantity) {
+function updateProfitDetails(graph_price, graph_quantity, expectedDemand, expectedSupplierProfit, expectedBuyerProfit) {
   const detailsDiv = document.getElementById('profit-details');
-  if (!detailsDiv) return;
+  if (!detailsDiv) {
+    console.warn('profit-details div not found');
+    return;
+  }
   
-  const totalProfit = profits.myProfit + profits.otherProfit;
+  const totalExpectedProfit = expectedSupplierProfit + expectedBuyerProfit;
+  const supplierShare = totalExpectedProfit > 0 ? (Math.max(0, expectedSupplierProfit) / Math.max(1, Math.max(0, expectedSupplierProfit) + Math.max(0, expectedBuyerProfit))) * 100 : 0;
   
   let html = `
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px;">
-      <h5>Analysis for Price: €${price.toFixed(2)}, Quantity: ${quantity}</h5>
+      <h5>Analysis for Price: €${graph_price.toFixed(2)}, Quantity: ${graph_quantity}</h5>
+      <p><strong>Expected Demand:</strong> ${expectedDemand.toFixed(2)} units</p>
     </div>
     
     <div style="display: flex; gap: 20px; margin-bottom: 15px;">
-      <div style="background-color: rgba(54, 162, 235, 0.1); padding: 10px; border-radius: 5px; flex: 1;">
-        <h6 style="color: rgba(54, 162, 235, 1); margin-bottom: 5px;">${profits.myRole}</h6>
-        <p style="font-size: 18px; font-weight: bold; margin: 0; color: ${profits.myProfit < 0 ? '#dc3545' : 'inherit'};">
-          €${profits.myProfit.toFixed(2)}
+      <div style="background-color: rgba(255, 99, 132, 0.1); padding: 10px; border-radius: 5px; flex: 1;">
+        <h6 style="color: rgba(255, 99, 132, 1); margin-bottom: 5px;">Expected Supplier Profit</h6>
+        <p style="font-size: 18px; font-weight: bold; margin: 0; color: ${expectedSupplierProfit < 0 ? '#dc3545' : 'inherit'};">
+          €${expectedSupplierProfit.toFixed(2)}
         </p>
       </div>
-      <div style="background-color: rgba(255, 99, 132, 0.1); padding: 10px; border-radius: 5px; flex: 1;">
-        <h6 style="color: rgba(255, 99, 132, 1); margin-bottom: 5px;">${profits.otherRole}</h6>
-        <p style="font-size: 18px; font-weight: bold; margin: 0; color: ${profits.otherProfit < 0 ? '#dc3545' : 'inherit'};">
-          €${profits.otherProfit.toFixed(2)}
+      <div style="background-color: rgba(54, 162, 235, 0.1); padding: 10px; border-radius: 5px; flex: 1;">
+        <h6 style="color: rgba(54, 162, 235, 1); margin-bottom: 5px;">Expected Buyer Profit</h6>
+        <p style="font-size: 18px; font-weight: bold; margin: 0; color: ${expectedBuyerProfit < 0 ? '#dc3545' : 'inherit'};">
+          €${expectedBuyerProfit.toFixed(2)}
         </p>
       </div>
     </div>
     
     <div style="background-color: #e9ecef; padding: 10px; border-radius: 5px;">
-      <p><strong>Total Expected Profit:</strong> €${totalProfit.toFixed(2)}</p>
-      ${totalProfit > 0 ? 
-        `<p><strong>Your Share:</strong> ${((Math.max(0, profits.myProfit) / Math.max(1, Math.max(0, profits.myProfit) + Math.max(0, profits.otherProfit))) * 100).toFixed(1)}%</p>` : 
-        '<p style="color: orange;"><strong>Warning:</strong> No positive total profit with these parameters.</p>'
+      <p><strong>Total Expected Profit:</strong> €${totalExpectedProfit.toFixed(2)}</p>
+      ${totalExpectedProfit > 0 ? 
+        `<p><strong>Supplier Share:</strong> ${supplierShare.toFixed(1)}%</p>` : 
+        '<p style="color: orange;"><strong>Warning:</strong> No positive total expected profit.</p>'
       }
     </div>
   `;
   
-  if (profits.myProfit < 0 || profits.otherProfit < 0) {
+  if (expectedSupplierProfit < 0 || expectedBuyerProfit < 0) {
     html += `
       <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-top: 10px;">
-        <strong>⚠️ Warning:</strong> Negative profits detected. This deal may result in losses for one or both parties.
+        <strong>⚠️ Warning:</strong> Negative expected profits detected. This deal may result in losses.
       </div>
     `;
   }

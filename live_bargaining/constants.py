@@ -41,9 +41,9 @@ class C(RoleConstants):
     PATTERN_OFFER = re.compile(r'\[([^\]]+)\]')
 
     PRICE_MIN = 1.0
-    PRICE_MAX = 14.0
-    PRICE_RANGE = [x * 0.01 for x in range(100, 1401)]  # Generates 1.00 to 14.00 with a step of 0.01
-    QUALITY_RANGE = range(0, 101)
+    PRICE_MAX = 12.0
+    PRICE_RANGE = [x * 0.01 for x in range(100, 1201)]  # Generates 1.00 to 12.00 with a step of 0.01
+    QUALITY_RANGE = range(1, 101)
     DEMAND_MIN = min(QUALITY_RANGE)
     DEMAND_MAX = max(QUALITY_RANGE)
 
