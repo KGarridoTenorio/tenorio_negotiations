@@ -138,7 +138,7 @@ class BotStrategy(BotBase):
         print('[DEBUG Bot_strategyy.respond_to_offer 3 - Evaluation of bot offer]')
         evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
-        self.send_response(llm_output)
+        self.send_response(llm_output,last_offer)
 
     async def respond_to_non_offer(self, evaluation: str):
 
@@ -169,8 +169,11 @@ class BotStrategy(BotBase):
         print('[DEBUG Bot_strategyy.respond_to_non_offer 3 - Evaluation of bot offer]')
         evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
-        self.send_response(llm_output)
+        self.send_response(llm_output,last_offer)
 
-    def send_response(self, llm_output: str):
+    def send_response(self, llm_output: str,last_offer: Offer,):
+        if last_offer is not None and last_offer.is_valid:
+            self.offer_list.append(last_offer)
+
         if llm_output is not None:
             self.store_send_data(llm_output=llm_output)
