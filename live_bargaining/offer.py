@@ -168,17 +168,17 @@ class Offer(dict):
 
         bot_is_supplier = (constraint_bot == production_cost)
 
-        if self.price is not None:
-            is_valid = self.is_price_feasible(
-                market_price, production_cost, nash_profit, 
+        if self.quality is not None:
+            is_valid = self.is_quality_feasible(
+                market_price, production_cost, nash_profit,
                 dmin, dmax, bot_is_supplier
             )
             if not is_valid:
                 return False
-        
-        if self.quality is not None:
-            is_valid = self.is_quality_feasible(
-                market_price, production_cost, nash_profit,
+
+        if self.price is not None:
+            is_valid = self.is_price_feasible(
+                market_price, production_cost, nash_profit, 
                 dmin, dmax, bot_is_supplier
             )
             if not is_valid:
@@ -193,8 +193,6 @@ class Offer(dict):
         print(f"[DEBUG Offer.evaluate] Offer: price = {self.price}, quality = {self.quality}, profit_bot = {self.profit_bot}, profit_user = {self.profit_user}, is_valid = {self.is_valid}")
         if self.profit_bot >= nash_profit:
             result = ACCEPT
-        elif self.is_valid:
-            result = NOT_PROFITABLE
 
         elif self.price is None and self.quality_in_range:
             if not self.validate_partial_offer(constraint_bot, constraint_user):
@@ -207,6 +205,12 @@ class Offer(dict):
                 result = TOO_UNFAVOURABLE
                 return result
             result = OFFER_PRICE
+
+        elif self.is_valid:
+            if not self.validate_partial_offer(constraint_bot, constraint_user):
+                result = TOO_UNFAVOURABLE
+                return result
+            result = NOT_PROFITABLE
 
         elif self.price is not None and not self.price_in_range:
             result = INVALID_OFFER
