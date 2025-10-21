@@ -119,56 +119,58 @@ class BotStrategy(BotBase):
 
         llm_offers = []
         last_offer = llm_output = None
-        while len(llm_offers) < 3 and evaluation != ACCEPT:
-            response = await self.get_llm_response(content1)
+
+        response = await self.get_llm_response(content1)
+        print('\n [DEBUG Bot_strategy.respond_to_offer 1 - Bot internal message]', response['message'], "\n")
+        llm_output = self.extract_content(response)
+        print('\n [DEBUG Bot_strategy.respond_to_offer 2 - LLM output]', llm_output, "\n")
+        last_offer = await self.interpret_offer(llm_output, -1)
+        if not last_offer or not last_offer.is_complete:
+            response = await self.get_llm_response(content2)
             llm_output = self.extract_content(response)
             last_offer = await self.interpret_offer(llm_output, -1)
-            if not last_offer or not last_offer.is_complete:
-                response = await self.get_llm_response(content2)
-                llm_output = self.extract_content(response)
-                last_offer = await self.interpret_offer(llm_output, -1)
 
-            if last_offer.is_complete:
-                self.add_profits(last_offer)
-            else:
-                last_offer.profit_bot = last_offer.profit_user = 0
-            llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
+        if last_offer.is_complete:
+            self.add_profits(last_offer)
+        else:
+            last_offer.profit_bot = last_offer.profit_user = 0
+        llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+        print('[DEBUG Bot_strategyy.respond_to_offer 3 - Evaluation of bot offer]')
+        evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
-        self.send_response(evaluation, last_offer, llm_output, llm_offers)
+        self.send_response(llm_output)
 
     async def respond_to_non_offer(self, evaluation: str):
+
         content1 = self.get_respond_prompt(evaluation)
-        content2 = self.get_respond_prompt("From_0")
+
+        # When evaluation was invalid_offer it raised an error (i could not identify it)
+        try:
+            content2 = self.get_respond_prompt("From_0")
+        except:
+            pass
 
         llm_offers = []
         last_offer = llm_output = None
 
-        while len(llm_offers) < 3 and evaluation != ACCEPT:
-            response = await self.get_llm_response(
-                content1 if len(llm_offers) < 3 else content2)
-            print('\n [DEBUG Bot_strategy.respond_to_non_offer]', response, "\n")
-            llm_output = self.extract_content(response)
-            last_offer = await self.interpret_offer(llm_output, -1)
+        response = await self.get_llm_response(
+            content1 if len(llm_offers) < 3 else content2)
+        
+        print('\n[DEBUG Bot_strategy.respond_to_non_offer 1 - Bot internal message]', response['message'], "\n")
+        llm_output = self.extract_content(response)
+        print('\n[DEBUG Bot_strategy.respond_to_non_offer 2 - LLM output]', llm_output, "\n")
+        last_offer = await self.interpret_offer(llm_output, -1)
 
-            if last_offer.is_complete:
-                self.add_profits(last_offer)
-            else:
-                last_offer.profit_bot = last_offer.profit_user = 0
-            llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-            evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
+        if last_offer.is_complete:
+            self.add_profits(last_offer)
+        else:
+            last_offer.profit_bot = last_offer.profit_user = 0
+        llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+        print('[DEBUG Bot_strategyy.respond_to_non_offer 3 - Evaluation of bot offer]')
+        evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
 
-        self.send_response(evaluation, last_offer, llm_output, llm_offers)
+        self.send_response(llm_output)
 
-    def send_response(self, evaluation: str, last_offer: Offer,
-                      llm_output: str, llm_offers: List[List[Union[int, Any]]]):
-        if evaluation != ACCEPT:
-            max_profit = max(llm_offer[0] for llm_offer in llm_offers)
-            best_offer = random.choice([llm_offer for llm_offer in llm_offers
-                                        if llm_offer[0] == max_profit])
-            _, llm_output, last_offer = best_offer
-
-        if last_offer is not None and last_offer.is_valid:
-            self.offer_list.append(last_offer)
+    def send_response(self, llm_output: str):
         if llm_output is not None:
             self.store_send_data(llm_output=llm_output)

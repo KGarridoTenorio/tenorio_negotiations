@@ -65,7 +65,7 @@ class Offer(dict):
 
     @property
     def quality_in_range(self) -> bool:
-        return self.quality in C.QUALITY_RANGE
+        return self.quality in C.QUALITY_RANGE and self.quality > 0
 
     def enhance(self, offer_list: 'OfferList', idx: int = None):
         """ Adds missing price or quality from last data
