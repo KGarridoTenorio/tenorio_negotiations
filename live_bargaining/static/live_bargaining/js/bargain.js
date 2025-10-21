@@ -119,9 +119,9 @@ function expectedDemandFromQuality(quality) {
 }
 
 // Build profit data series for line chart
-function buildProfitSeries(price, quantity) {
-  const p = parseFloat(price);
-  const q = parseInt(quantity);
+function buildProfitSeries(graph_price, graph_quantity) {
+  const p = parseFloat(graph_price);
+  const q = parseInt(graph_quantity);
   const marketPrice = js_vars.market_price || 11;
   const productionCost = js_vars.production_cost || 4;
   const demandMin = js_vars.demand_min || 0;
@@ -308,7 +308,7 @@ function plotProfitsVsDemand() {
   updateProfitDetails(priceValue, quantityValue, expectedDemand, expectedSupplierProfit, expectedBuyerProfit);
 }
 
-function updateProfitDetails(price, quantity, expectedDemand, expectedSupplierProfit, expectedBuyerProfit) {
+function updateProfitDetails(graph_price, graph_quantity, expectedDemand, expectedSupplierProfit, expectedBuyerProfit) {
   const detailsDiv = document.getElementById('profit-details');
   if (!detailsDiv) {
     console.warn('profit-details div not found');
@@ -320,7 +320,7 @@ function updateProfitDetails(price, quantity, expectedDemand, expectedSupplierPr
   
   let html = `
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px;">
-      <h5>Analysis for Price: €${price.toFixed(2)}, Quantity: ${quantity}</h5>
+      <h5>Analysis for Price: €${graph_price.toFixed(2)}, Quantity: ${graph_quantity}</h5>
       <p><strong>Expected Demand:</strong> ${expectedDemand.toFixed(2)} units</p>
     </div>
     

@@ -225,7 +225,7 @@ def optimal_solution_string(constraint_user: int,
                             constraint_bot: int,
                             evaluation: str,
                             offer: Offer) -> str:
-
+    
     target = nash_bargaining_solution(constraint_bot, constraint_user)['profit'] # Debugging
 
     if evaluation == ACCEPT:
