@@ -144,30 +144,42 @@ class BotStrategy(BotBase):
 
         content1 = self.get_respond_prompt(evaluation)
 
-        # When evaluation was invalid_offer it raised an error (i could not identify it)
         try:
             content2 = self.get_respond_prompt("From_0")
         except:
-            pass
+            content2 = content1
 
         llm_offers = []
         last_offer = llm_output = None
-
-        response = await self.get_llm_response(
-            content1 if len(llm_offers) < 3 else content2)
+        while len(llm_offers) < 3:  
+            response = await self.get_llm_response(
+                content1 if len(llm_offers) < 2 else content2)
         
-        print('\n[DEBUG Bot_strategy.respond_to_non_offer 1 - Bot internal message]', response['message'], "\n")
-        llm_output = self.extract_content(response)
-        print('\n[DEBUG Bot_strategy.respond_to_non_offer 2 - LLM output]', llm_output, "\n")
-        last_offer = await self.interpret_offer(llm_output, -1)
+            print('\n[DEBUG Bot_strategy.respond_to_non_offer 1 - Bot internal message]', response['message'], "\n")
+            llm_output = self.extract_content(response)
+            print('\n[DEBUG Bot_strategy.respond_to_non_offer 2 - LLM output]', llm_output, "\n")
+            last_offer = await self.interpret_offer(llm_output, -1)
 
-        if last_offer.is_complete:
-            self.add_profits(last_offer)
-        else:
-            last_offer.profit_bot = last_offer.profit_user = 0
-        llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
-        print('[DEBUG Bot_strategyy.respond_to_non_offer 3 - Evaluation of bot offer]')
-        evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
+            if last_offer.is_complete:
+                self.add_profits(last_offer)
+                evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
+                if evaluation == ACCEPT:
+                    break
+            else:
+                last_offer.profit_bot = last_offer.profit_user = 0
+                llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+                print('[DEBUG Bot_strategyy.respond_to_non_offer 3 - Evaluation of bot offer]')
+                evaluation = last_offer.evaluate(self.constraint_bot, self.constraint_user)
+                self.send_response(llm_output,last_offer)
+                return
+            llm_offers.append([last_offer.profit_bot, llm_output, last_offer])
+        
+        # If no profitable offer is found after 3 attempts, choose the best among the worst
+        if evaluation != ACCEPT:
+            max_profit = max(llm_offer[0] for llm_offer in llm_offers)
+            best_offer = random.choice([llm_offer for llm_offer in llm_offers
+                                        if llm_offer[0] == max_profit])
+            _, llm_output, last_offer = best_offer
 
         self.send_response(llm_output,last_offer)
 
