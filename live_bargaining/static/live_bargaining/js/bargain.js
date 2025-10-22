@@ -413,7 +413,7 @@ myPrice.addEventListener("keydown", function (event) {
   // Only allow numbers and Delete/Backspace
   let key = event.key;
   if (
-    isNaN(parseInt(key)) && // Allow numbers
+    isNaN(parseFloat(key)) && // Allow numbers
     key !== "." &&          // Allow decimal point
     key !== "Delete" &&
     key !== "Backspace"
@@ -483,7 +483,7 @@ myQuality.addEventListener("input", function () {
 });
 
 function sendOffer() {
-  let price = parseInt(myPrice.value);
+  let price = parseFloat(myPrice.value);
   let quality = parseInt(myQuality.value);
   if (!isNaN(price) && !isNaN(quality)) {
     liveSend({'type': 'propose', 'price': price, 'quality': quality})
@@ -501,7 +501,7 @@ function sendAccept() {
   btnAccept.disabled = true;
 
   let proposal = otherProposal.innerHTML;
-  let price = parseInt(proposal.split('<br>')[0].replace('€', ''));
+  let price = parseFloat(proposal.split('<br>')[0].replace('€', ''));
   if (isNaN(price)) {
     return;
   }

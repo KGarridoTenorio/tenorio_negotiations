@@ -238,13 +238,11 @@ class Results(Page):
             formatted_deal_price = ""
             formatted_deal_quantity = ""
             formatted_profits = "€ 0"
-            formatted_demand= ""
         else:
             formatted_deal_price = f"€ {player.price_accepted}"
             formatted_deal_quantity = f"{player.quality_accepted}"
             formatted_profits = f"€ {int(player.payoff)}"
-            formatted_demand= player.group.demand
-        
+        formatted_demand= player.group.demand
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
         player.participant.payoff = total_score / 9
 

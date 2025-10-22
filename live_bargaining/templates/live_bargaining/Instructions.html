@@ -20,7 +20,7 @@
       </div>
       <p>
         You will be negotiating with
-        {% if player.bot_opponent %}
+        {% if player.is_single == 1 %}
           an <strong>AI BOT</strong>
         {% else %}
           a <strong>Human</strong>
@@ -56,12 +56,12 @@
           <tbody>
             <tr>
               <td>
-                <p><strong>Supplier Profit</strong> = (w - PC) * min(q, D) + PC * min(D-q, 0)</p>
+                <p><strong>Supplier Profit</strong> = w * min(q, D) - PC * q</p>
                 <p><strong>Example:</strong> Your Production Cost (PC) is 3€, and you just agreed with the retailer on a wholesale price (w) of 7€ and a quantity (q) of 50:</p>
                 <ul>
-                  <li>Demand (D) is 75: (7-3) * min(50, 75) + 3 * min(75-50, 0) = 4*50 - 0 = 200€</li>
-                  <li>Demand (D) is 25: (7-3) * min(50, 25) + 3 * min(25-50, 0) = 4*25 - 3*25 = 25€</li>
-                  <li>Demand (D) is 50: (7-3) * min(50, 50) + 3 * min(50-50, 0) = 4*50 - 0 = 200€</li>
+                  <li>Demand (D) is 75: 7 * min(50, 75) - 3 * 50 = 200€</li>
+                  <li>Demand (D) is 25: 7 * min(50, 25) - 3 * 50 = 25€</li>
+                  <li>Demand (D) is 50: 7 * min(50, 50) - 3 * 50 = 200€</li>
                 </ul>
               </td>
             </tr>
@@ -85,36 +85,30 @@
       {% if player.is_single == 1 %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            12 rounds; The average profit * 0.02 from these rounds determine your financial reward. 
-          </li>
-          <li>
-            You will negotiate against an AI Bot.
+            10 rounds; The average profit * 0.02 from the non-practice rounds determine your financial reward.
           </li>
           <li>
             To warm up, you start with
             <strong>2 practice</strong> rounds (not counting towards your financial reward). 
+          </li>
+          <li>
+            You will always negotiate against an AI Bot.
+          </li>
+          <li>
+            The profits from the AI bot will be given to one of the humans training the AI bot. 
           </li>
         </ul>
       {% else %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            12 rounds; The average profit * 0.02 from these rounds determine your financial reward.
-          </li>
-          <li>
-            You will personally negotiate in 8 of these rounds, while an AI will represent you in the remaining 4 rounds.
+            10 rounds; The average profit * 0.02 from the non-practice rounds determine your financial reward.
           </li>
           <li>
             To warm up, you start with
             <strong>2 practice</strong> rounds (not counting towards your financial reward). 
           </li>
           <li>
-            In the initial 4 "real" rounds you will be the negotiator and will face either an AI or a human as counterpart. 
-          </li>
-          <li>
-            The subsequent 4 "real" rounds will feature the opposite scenario; 
-          </li>
-          <li>
-            If you initially negotiated against a human, you will negotiate against an AI bot, and vice versa.
+            You will always negotiate against other human participants. 
           </li>
         </ul>
       {% endif %}
@@ -138,7 +132,7 @@
   {% elif player.round_number == 2 %}
     <p>
       You will be negotiating with
-      {% if player.bot_opponent %}
+      {% if player.is_single == 1 %}
         an <strong>AI BOT</strong>
       {% else %}
         a <strong>Human-being</strong>
