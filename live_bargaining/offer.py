@@ -60,8 +60,8 @@ class Offer(dict):
     def price_in_range(self) -> bool:
         if self.price is None:
             return False
-        # return C.PRICE_MIN <= self.price <= C.PRICE_MAX
-        return round(self.price, 2) in C.PRICE_RANGE
+        #return Player.group.production_cost <= self.price <= Player.group.market_price,
+        return 3 <= self.price <= 12 # IT should be dynamic
 
     @property
     def quality_in_range(self) -> bool:

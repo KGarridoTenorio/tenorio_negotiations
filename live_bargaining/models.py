@@ -124,7 +124,7 @@ class Player(BasePlayer):
     comprehension_check = models.IntegerField(blank=True, min=-100)
 
     price_proposed = models.FloatField()
-    price_accepted = models.IntegerField()
+    price_accepted = models.FloatField()
     quality_proposed = models.IntegerField()
     quality_accepted = models.IntegerField()
 
