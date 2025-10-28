@@ -11,4 +11,4 @@ How to use?
 - ready to run the final magic command: otree devserver
 
 The Buyer-Supplier negotiation set-up with full-information on counterpart constraints and supplier bearing the risk is inspired by Davis & Hyndman (2021). 
-- Andrew M. Davis, Kyle Hyndman (2021) Private Information and Dynamic Bargaining in Supply Chains: An Experimental Study. Manufacturing & Service Operations Management 23(6):1449-1467. https://doi.org/10.1287/ msom.2020.0896
+- Andrew M. Davis, Kyle Hyndman (2021) Private Information and Dynamic Bargaining in Supply Chains: An Experimental Study. Manufacturing & Service Operations Management 23(6):1449-1467. https://doi.org/10.1287/msom.2020.0896
