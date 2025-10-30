@@ -244,7 +244,8 @@ class Results(Page):
             formatted_profits = f"€ {int(player.payoff)}"
         formatted_demand= player.group.demand
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
-        player.participant.payoff = total_score / 9
+        avg_score = total_score / 8
+        player.participant.payoff = avg_score 
 
         return formatted_deal_price,formatted_deal_quantity, formatted_profits, total_score, formatted_demand
 
@@ -267,42 +268,25 @@ class Results(Page):
 
     @classmethod
     def vars_for_template_last_round(cls, player: Player) -> Dict[str, Any]:
-        formatted_deal_price, formatted_deal_quantity,  formatted_profits, total_score = \
+        formatted_deal_price, formatted_deal_quantity,  formatted_profits, total_score, formatted_demand = \
             cls.get_params(player)
+        num_rounds_i_played = 8
 
-        selected_profits = BotProfits.get_role_key_lists(player)
-
-        num_rounds_i_played = 9
-        num_rounds_bot_played = 4
-        if player.other_id == -1:
-            # I don't have the preference
-            if player.group.preference_role != player.role and \
-                    not player.is_single:
-                num_rounds_i_played = 8
-                num_rounds_bot_played = 5
-            # I have the preference
-            elif player.group.preference_role == player.role:
-                # Don't count the last one bc is going to be 0 idle
-                selected_profits = selected_profits[:-1]
 
         # Calculating the sum and average of the randomly selected profits
-        total_bot_profits = sum([sum(profits) for profits in selected_profits])
-        average_bot_profit = total_bot_profits / num_rounds_bot_played
-        final_payoff = (total_bot_profits + total_score) / (
-                num_rounds_bot_played + num_rounds_i_played)
+        final_payoff = ((total_score) / num_rounds_i_played )/50
         if final_payoff < 0:
             final_payoff = 0
         player.final_payoff = max(0,round(final_payoff,2))
         player.total_profit_player= total_score
-        player.avg_profit_player = round((total_score/num_rounds_i_played),5)
-        player.total_profit_from_the_bot_attributable = total_bot_profits
+        player.avg_profit_player = round((total_score/num_rounds_i_played),2)
         return {
+            'formatted_demand': formatted_demand,
             'formatted_deal_price': formatted_deal_price,
             'formatted_profits': formatted_profits,
             'formatted_deal_quantity': formatted_deal_quantity,
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
             'formatted_AVG_human_profit': f"€ {max(0,player.participant.payoff):.2f}",
-            'formatted_bot_payment': f"€ {average_bot_profit:.2f}",
             'formatted_final_payment': f"€ {final_payoff:.2f}",
         }
 
