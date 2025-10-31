@@ -40,7 +40,11 @@
               <li>Production Cost (PC) and Retail Price (RP) will be known to both parties.</li>
               <li>After each negotiation, Demand (D) will be randomly drawn [0, 100] (Equal Probability)</li>
               <li>Supplier carries the risk of unsold inventory (any q > Demand will expire).</li>
-              <li>Both companies employ AI and humans to negotiate with counterpart representatives.</li>
+              {% if player.is_single == 1 %}
+              <li>Both companies employ AI in part of their negotiations with counterpart representatives, and humans in other negotiations.</li>
+              {% else %}
+              <li>Both companies are represented by human participants in all their negotiations.</li>
+              {% endif %}
               <li>You will be randomly rematched each round with a different counterpart.</li>
           </ul>
       </section>
@@ -85,7 +89,7 @@
       {% if player.is_single == 1 %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            10 rounds; The average profit divided by 50 from the non-practice rounds determine your financial reward.
+            10 rounds; The average profit from the non-practice rounds divided by 50 determines your financial reward.
           </li>
           <li>
             To warm up, you start with
@@ -101,7 +105,7 @@
       {% else %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            10 rounds; The average profit divided by 50 from the non-practice rounds determine your financial reward.
+            10 rounds; The average profit from the non-practice rounds divided by 50 determines your financial reward.
           </li>
           <li>
             To warm up, you start with
@@ -114,7 +118,7 @@
       {% endif %}
       <p>
         You have 3 minutes per negotiation to reach an agreement.
-        If the time runs out the outcome is an impasse (disagreement), and your profit will be zero. 
+        If the time runs out the outcome is an impasse (disagreement), both your profit and your counterpart's profit will be zero. 
       </p>
       {% if player.role == C.ROLE_SUPPLIER %}
         <p>
