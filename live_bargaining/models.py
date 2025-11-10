@@ -23,6 +23,9 @@ def JsonField(**kwargs) -> OTreeColumn:
 
 
 class Subsession(BaseSubsession, Matching):
+
+    available_classes = JsonField(initial={})
+
     def initialize_subsession(self):
         BotProfits.create_new(self)
 
@@ -56,9 +59,14 @@ class Subsession(BaseSubsession, Matching):
 
 def creating_session(sub_session: Subsession):
     if sub_session.round_number == 1:
+        sub_session.available_classes = sub_session.session.config['active_classes'].copy()
+        print(f"Round {sub_session.round_number} - Initial available classes:", [k for k in sub_session.available_classes.keys()])
         sub_session.session.initialize()
-    sub_session.initialize_subsession()
 
+    else:
+        sub_session.available_classes = sub_session.session.vars.get('remaining_classes', {})
+
+    sub_session.initialize_subsession()
 
 def vars_for_admin_report(sub_session: Subsession) -> Dict[str, Any]:
     actual_round_number = sub_session.get_players()[0].participant._round_number
@@ -91,12 +99,39 @@ class Group(BaseGroup):
                          preference_role: str, max_greedy: bool):
         from live_bargaining.optimal import nash_bargaining_solution 
         self.preference_role = preference_role
+
+        if self.subsession.round_number in (1,2):
+            # In practice rounds, choose randomly the negotiation parameters
+            available = self.subsession.available_classes
+            self.subsession.session.vars['remaining_classes'] = available
+            self.subsession.available_classes = available
+
+            low = config['market_price_low']
+            high = config['market_price_high']
+            self.market_price = round(random.uniform(low, high))
+            low = config['production_cost_low']
+            high = config['production_cost_high']
+            self.production_cost = round(random.uniform(low, high))
+
+        else:
+            available = self.subsession.available_classes
+            print(f"Round {self.subsession.round_number}, Group {self.id_in_subsession} - Available before:", [k for k in available.keys()])
+
+            # Select random class
+            class_name = random.choice(list(available.keys()))
+            class_params = available.pop(class_name)
+
+            # Store remaining classes for next round
+            self.subsession.session.vars['remaining_classes'] = available
+            self.subsession.available_classes = available
+            print(f"Round {self.subsession.round_number}, Group {self.id_in_subsession} - Selected {class_name}, Remaining:", [k for k in available.keys()])
+
+            self.market_price = class_params['market_price']
+            self.production_cost = class_params['production_cost']
+
         low = config['market_price_low']
         high = config['market_price_high']
-        self.market_price = round(random.uniform(low, high))
-        low = config['production_cost_low']
-        high = config['production_cost_high']
-        self.production_cost = round(random.uniform(low, high))
+
         self.max_greedy = max_greedy
         self.demand = random.randint(config['demand_low'], config['demand_high'])
         players = self.get_players()
