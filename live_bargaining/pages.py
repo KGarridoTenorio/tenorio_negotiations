@@ -244,7 +244,7 @@ class Results(Page):
             formatted_profits = f"€ {int(player.payoff)}"
         formatted_demand= player.group.demand
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
-        avg_score = total_score / 8
+        avg_score = total_score / C.ACTUAL_ROUNDS
         player.participant.payoff = avg_score 
 
         return formatted_deal_price,formatted_deal_quantity, formatted_profits, total_score, formatted_demand
@@ -270,7 +270,7 @@ class Results(Page):
     def vars_for_template_last_round(cls, player: Player) -> Dict[str, Any]:
         formatted_deal_price, formatted_deal_quantity,  formatted_profits, total_score, formatted_demand = \
             cls.get_params(player)
-        num_rounds_i_played = 8
+        num_rounds_i_played = C.ACTUAL_ROUNDS
 
 
         # Calculating the sum and average of the randomly selected profits
