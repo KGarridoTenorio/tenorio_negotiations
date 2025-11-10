@@ -2,13 +2,21 @@ import re
 from typing import Any, Dict, Union
 
 from otree.api import *
+import sys, os
 
 Config = Dict[str, Union[int, str, bool, Dict[str, Any]]]
+
+from settings import SESSION_CONFIG_DEFAULTS
 
 # TODO Not used?
 ORDINALS = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth',
             'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth']
 
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+# Import settings directly
+from settings import SESSION_CONFIG_DEFAULTS
 
 class RoleConstants(BaseConstants):
     ROLE_SUPPLIER = 'Supplier'
@@ -23,7 +31,7 @@ class RoleConstants(BaseConstants):
 class C(RoleConstants):
     NAME_IN_URL = 'live_bargaining'
     PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 10
+    NUM_ROUNDS = len(SESSION_CONFIG_DEFAULTS['active_classes']) + 2 #ensure existence of practice rounds
     PRACTICE_ROUNDS = 2
     ACTUAL_ROUNDS = NUM_ROUNDS - PRACTICE_ROUNDS
     TOTAL_NEGOTIATIONS = 13

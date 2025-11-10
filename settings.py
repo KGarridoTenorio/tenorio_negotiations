@@ -54,8 +54,70 @@ SESSION_CONFIG_DEFAULTS = {
     "https://ollama6.src-automating.src.surf-hosted.nl": True,
     "https://ollama7.src-automating.src.surf-hosted.nl": True,
 
+    "Class A": True,
+    "Class B": True,
+    "Class C": False,
+    "Class D": False,
+    "Class E": False,
+    "Class F": False,
+    "Class G": False,
+    "Class H": False,
+    "Class I": False,
+    
     'doc': ""
 }
+
+def is_class_active(session_config_details, _class) -> bool:
+    return session_config_details.get(_class, False)
+
+def initialize_negotiation_classes(config):
+    negotiation_classes = {
+        'Class A': {
+            'market_price': 12,
+            'production_cost': 3,
+        },
+        'Class B': {
+            'market_price': 11,
+            'production_cost': 3,
+        },
+        'Class C': {
+            'market_price': 12,
+            'production_cost': 4,
+        },
+        'Class D': {
+            'market_price': 10,
+            'production_cost': 3,
+        },
+        'Class E': {
+            'market_price': 11,
+            'production_cost': 4,
+        },
+        'Class F': {
+            'market_price': 12,
+            'production_cost': 5,
+        },
+        'Class G': {
+            'market_price': 10,
+            'production_cost': 4,
+        },
+        'Class H': {
+            'market_price': 11,
+            'production_cost': 5,
+        },
+        'Class I': {
+            'market_price': 10,
+            'production_cost': 5,
+        },
+    }
+
+    active_classes = {}
+    for class_name, params in negotiation_classes.items():
+        if is_class_active(config, class_name):
+            active_classes[class_name] = params
+    
+    return active_classes
+
+SESSION_CONFIG_DEFAULTS['active_classes'] = initialize_negotiation_classes(SESSION_CONFIG_DEFAULTS)
 
 tmp = SESSION_CONFIG_DEFAULTS
 hostname = socket.gethostname()
