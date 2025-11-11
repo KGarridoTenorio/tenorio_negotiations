@@ -8,12 +8,63 @@ from .constants import C
 from .models import Player, Group, Subsession, BotProfits
 from .utils import now_datetime, get_start_time
 
+import settings
+
+def is_class_active(session_config_details, _class) -> bool:
+    return session_config_details.get(_class, False)
+
+def initialize_negotiation_classes(config):
+    negotiation_classes = {
+        'Class A': {
+            'market_price': 12,
+            'production_cost': 3,
+        },
+        'Class B': {
+            'market_price': 11,
+            'production_cost': 3,
+        },
+        'Class C': {
+            'market_price': 12,
+            'production_cost': 4,
+        },
+        'Class D': {
+            'market_price': 10,
+            'production_cost': 3,
+        },
+        'Class E': {
+            'market_price': 11,
+            'production_cost': 4,
+        },
+        'Class F': {
+            'market_price': 12,
+            'production_cost': 5,
+        },
+        'Class G': {
+            'market_price': 10,
+            'production_cost': 4,
+        },
+        'Class H': {
+            'market_price': 11,
+            'production_cost': 5,
+        },
+        'Class I': {
+            'market_price': 10,
+            'production_cost': 5,
+        },
+    }
+
+    active_classes = {}
+    for class_name, params in negotiation_classes.items():
+        if is_class_active(config, class_name):
+            active_classes[class_name] = params
+    return active_classes
+
 class CustomWaitPage(WaitPage):
     template_name = 'live_bargaining/CustomWaitPage.html'
 
     @staticmethod
     def vars_for_template(player: Player) -> Dict[str, Any]:
-        if player.round_number == C.NUM_ROUNDS:
+        if player.round_number == (len(initialize_negotiation_classes(player.session.config)) + 2):
             return {
                 'round_of': "",
                 'this_is': "This is the last negotiation round."
@@ -244,14 +295,18 @@ class Results(Page):
             formatted_profits = f"€ {int(player.payoff)}"
         formatted_demand= player.group.demand
         total_score = max(0, sum(int(p.payoff) for p in player.in_all_rounds()))
-        avg_score = total_score / C.ACTUAL_ROUNDS
+        avg_score = total_score / len(initialize_negotiation_classes(player.session.config))
         player.participant.payoff = avg_score 
 
         return formatted_deal_price,formatted_deal_quantity, formatted_profits, total_score, formatted_demand
 
     @classmethod
     def vars_for_template(cls, player: Player) -> Dict[str, Any]:
-        if player.round_number == C.NUM_ROUNDS:
+        
+        print(len(initialize_negotiation_classes(player.session.config)) + 2)
+
+        
+        if player.round_number >= (len(initialize_negotiation_classes(player.session.config)) + 2):
             return cls.vars_for_template_last_round(player)
 
         formatted_deal_price, formatted_deal_quantity, formatted_profits, total_score, formatted_demand = \
@@ -264,13 +319,14 @@ class Results(Page):
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
             'formatted_AVG_human_profit': f"€ {player.participant.payoff:.2f}",
             'rounds_count': int(player.round_number-2),
+            'total_rounds_selected': int((len(initialize_negotiation_classes(player.session.config)))+2),
         }
 
     @classmethod
     def vars_for_template_last_round(cls, player: Player) -> Dict[str, Any]:
         formatted_deal_price, formatted_deal_quantity,  formatted_profits, total_score, formatted_demand = \
             cls.get_params(player)
-        num_rounds_i_played = C.ACTUAL_ROUNDS
+        num_rounds_i_played = len(initialize_negotiation_classes(player.session.config))
 
 
         # Calculating the sum and average of the randomly selected profits
@@ -288,6 +344,7 @@ class Results(Page):
             'formatted_cumulative_score': f"€ {int(total_score):.2f}",
             'formatted_AVG_human_profit': f"€ {max(0,player.participant.payoff):.2f}",
             'formatted_final_payment': f"€ {final_payoff:.2f}",
+            'total_rounds_selected': int((len(initialize_negotiation_classes(player.session.config)))+2),
         }
 
 page_sequence = [

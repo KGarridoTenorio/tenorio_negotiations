@@ -56,13 +56,13 @@ SESSION_CONFIG_DEFAULTS = {
 
     "Class A": True,
     "Class B": True,
-    "Class C": False,
-    "Class D": False,
-    "Class E": False,
-    "Class F": False,
-    "Class G": False,
-    "Class H": False,
-    "Class I": False,
+    "Class C": True,
+    "Class D": True,
+    "Class E": True,
+    "Class F": True,
+    "Class G": True,
+    "Class H": True,
+    "Class I": True,
     
     'doc': ""
 }
@@ -114,7 +114,6 @@ def initialize_negotiation_classes(config):
     for class_name, params in negotiation_classes.items():
         if is_class_active(config, class_name):
             active_classes[class_name] = params
-    
     return active_classes
 
 SESSION_CONFIG_DEFAULTS['active_classes'] = initialize_negotiation_classes(SESSION_CONFIG_DEFAULTS)

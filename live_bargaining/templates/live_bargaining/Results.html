@@ -3,7 +3,7 @@
 {% endblock %}
 
 {% block content %}
-  {% if player.round_number < C.NUM_ROUNDS %}
+  {% if player.round_number < total_rounds_selected %}
     {% if not formatted_deal_price %}
       <p> 
         The demand was {% formatted_demand %}.
@@ -26,7 +26,7 @@
 
     {% if player.round_number > 2 %}
       <p>
-        You just finished round {{ rounds_count}}. 
+        You just finished. 
       </p>
     {% endif %}
     <br>
@@ -55,12 +55,12 @@
       {% endif %}
       <p>
         Your average profits are: Your Cumulative Profits
-        of {% formatted_cumulative_score %} divided by (8) the number of
+        of {% formatted_cumulative_score %} divided by the number of
         rounds you negotiated. That is {% formatted_AVG_human_profit %}
       </p>
       <p>
         As financial compensation for participating in this study, you will receive your average profits
-        across the 8 rounds (divided over 50) of <strong>{% formatted_final_payment %}</strong>.
+        across the non-practice rounds (divided over 50) of <strong>{% formatted_final_payment %}</strong>.
       </p>
 
       <p>
@@ -88,12 +88,12 @@
 
       <p>
         Your average profits are: Your Cumulative Profits
-        of {% formatted_cumulative_score %} divided by (8) the number of
+        of {% formatted_cumulative_score %} divided by the number of
         rounds you negotiated. That is {% formatted_AVG_human_profit %} 
       </p>
       <p>
         As financial compensation for participating in this study, you will receive your average profits
-        across the 8 rounds (divided over 50) of <strong>{% formatted_final_payment %}</strong>.
+        across the non-practice rounds (divided over 50) of <strong>{% formatted_final_payment %}</strong>.
       </p>
 
       <p>
