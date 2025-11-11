@@ -16,6 +16,54 @@ from .utils import now_datetime
 
 AUTO_SUBMIT_DEFAULTS[st.JSON] = None
 
+def is_class_active(session_config_details, _class) -> bool:
+    return session_config_details.get(_class, False)
+
+def initialize_negotiation_classes(config):
+    negotiation_classes = {
+        'Class A': {
+            'market_price': 12,
+            'production_cost': 3,
+        },
+        'Class B': {
+            'market_price': 11,
+            'production_cost': 3,
+        },
+        'Class C': {
+            'market_price': 12,
+            'production_cost': 4,
+        },
+        'Class D': {
+            'market_price': 10,
+            'production_cost': 3,
+        },
+        'Class E': {
+            'market_price': 11,
+            'production_cost': 4,
+        },
+        'Class F': {
+            'market_price': 12,
+            'production_cost': 5,
+        },
+        'Class G': {
+            'market_price': 10,
+            'production_cost': 4,
+        },
+        'Class H': {
+            'market_price': 11,
+            'production_cost': 5,
+        },
+        'Class I': {
+            'market_price': 10,
+            'production_cost': 5,
+        },
+    }
+
+    active_classes = {}
+    for class_name, params in negotiation_classes.items():
+        if is_class_active(config, class_name):
+            active_classes[class_name] = params
+    return active_classes
 
 # Do not user .append / += [] (list), .update (dict) or form_fields!
 def JsonField(**kwargs) -> OTreeColumn:
@@ -114,7 +162,9 @@ class Group(BaseGroup):
             self.production_cost = round(random.uniform(low, high))
 
         else:
-            available = self.subsession.available_classes
+            #print(initialize_negotiation_classes(self.subsession.session.config))
+            available = initialize_negotiation_classes(self.subsession.session.config)
+            
             print(f"Round {self.subsession.round_number}, Group {self.id_in_subsession} - Available before:", [k for k in available.keys()])
 
             # Select random class
