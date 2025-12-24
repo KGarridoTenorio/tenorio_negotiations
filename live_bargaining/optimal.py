@@ -2,7 +2,8 @@ from typing import Tuple, Dict, Any
 
 from .constants import C
 from .offer import (Offer, ACCEPT, OFFER_QUALITY, OFFER_PRICE,
-                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE, TOO_UNFAVOURABLE)
+                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE_FIND_OTHER_QUANTITY,
+                      NOT_PROFITABLE_FIND_OTHER_PRICE, TOO_UNFAVOURABLE)
 from .prompts import PROMPTS
 
 import math
@@ -230,11 +231,9 @@ def optimal_solution_string(constraint_user: int,
 
     if evaluation == ACCEPT:
         return ''
-    elif evaluation == OFFER_PRICE:
+    elif evaluation == OFFER_PRICE or evaluation == NOT_PROFITABLE_FIND_OTHER_QUANTITY:
         optimal_price, optimal_quality = optimal_quality_for_wholesale_price(offer, constraint_bot, constraint_user)
-    elif evaluation == OFFER_QUALITY:
-        optimal_price, optimal_quality = optimal_wholesale_price_for_quality(offer, constraint_bot, constraint_user)
-    elif evaluation == NOT_PROFITABLE:
+    elif evaluation == OFFER_QUALITY  or evaluation == NOT_PROFITABLE_FIND_OTHER_PRICE:
         optimal_price, optimal_quality = optimal_wholesale_price_for_quality(offer, constraint_bot, constraint_user)
     elif evaluation == TOO_UNFAVOURABLE or evaluation == NOT_OFFER:
         optimal_price, optimal_quality = nash_bargaining_solution(constraint_bot, constraint_user)['offer']

@@ -4,7 +4,7 @@ from typing import Any, List, Union
 
 from .bot_base import BotBase
 from .offer import (Offer, ACCEPT, OFFER_QUALITY, OFFER_PRICE,
-                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE, TOO_UNFAVOURABLE)
+                    NOT_OFFER, INVALID_OFFER, NOT_PROFITABLE_FIND_OTHER_QUANTITY, NOT_PROFITABLE_FIND_OTHER_PRICE, TOO_UNFAVOURABLE)
 from .constants import C
 from .prompts import (PROMPTS, not_profitable_prompt, empty_offer_prompt,
                       offer_without_price_prompt, offer_without_quality_prompt,
@@ -46,7 +46,8 @@ class BotStrategy(BotBase):
 
         if evaluation == ACCEPT:
             await self.accept_offer()
-        elif evaluation in (NOT_PROFITABLE, OFFER_PRICE, OFFER_QUALITY):
+        elif evaluation in (NOT_PROFITABLE_FIND_OTHER_QUANTITY, 
+                            NOT_PROFITABLE_FIND_OTHER_PRICE, OFFER_PRICE, OFFER_QUALITY):
             await self.respond_to_offer(evaluation)
         elif evaluation in (INVALID_OFFER, NOT_OFFER):
             await self.respond_to_non_offer(evaluation)

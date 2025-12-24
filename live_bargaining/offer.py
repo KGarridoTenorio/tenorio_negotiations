@@ -3,12 +3,13 @@ from typing import Any, Union
 from .constants import C
 
 ACCEPT = 'accept'
-NOT_PROFITABLE = 'not_profitable'
 OFFER_QUALITY = 'offer_quality'
 OFFER_PRICE = 'offer_price'
 NOT_OFFER = 'not_offer'
 INVALID_OFFER = 'invalid_offer'
 TOO_UNFAVOURABLE = 'too_unfavourable'
+NOT_PROFITABLE_FIND_OTHER_PRICE = 'not_profitable_find_other_price'
+NOT_PROFITABLE_FIND_OTHER_QUANTITY = 'not_profitable_find_other_quantity'
 
 
 class Offer(dict):
@@ -185,6 +186,38 @@ class Offer(dict):
                 return False
         
         return True
+    
+    def validate_full_non_profitable_offer(self, constraint_bot, constraint_user) -> bool:
+        from live_bargaining.optimal import nash_bargaining_solution 
+
+        nash_profit = nash_bargaining_solution(constraint_bot, constraint_user)['profit']
+
+        production_cost = min(constraint_bot, constraint_user)
+        market_price = max(constraint_bot, constraint_user)
+        dmin = C.DEMAND_MIN
+        dmax = C.DEMAND_MAX
+
+        bot_is_supplier = (constraint_bot == production_cost)
+
+        if self.quality is not None:
+            is_valid = self.is_quality_feasible(
+                market_price, production_cost, nash_profit,
+                dmin, dmax, bot_is_supplier
+            )
+            if not is_valid:
+                # Then we can check the proce bc we received a full offer
+                if self.price is not None:
+                    is_valid = self.is_price_feasible(
+                        market_price, production_cost, nash_profit, 
+                        dmin, dmax, bot_is_supplier
+                    )
+                    if not is_valid:
+                        return 0 # We have to say both terms are TOO_UNFAVOURABLE
+                    else:
+                        return 2 # Only quanitity is TOO_UNFAVOURABLE So we can offer a new quanitity for that valid price
+            else:
+                return 1 # Only price is TOO_UNFAVOURABLE So we can offer a new price for that valid quanitity
+        return 0 # Both terms are TOO_UNFAVOURABLE
 
     def evaluate(self, constraint_bot, constraint_user) -> str:
         from live_bargaining.optimal import nash_bargaining_solution 
@@ -207,10 +240,15 @@ class Offer(dict):
             result = OFFER_PRICE
 
         elif self.is_valid:
-            if not self.validate_partial_offer(constraint_bot, constraint_user):
+            if self.validate_full_non_profitable_offer(constraint_bot, constraint_user) == 0:
                 result = TOO_UNFAVOURABLE
                 return result
-            result = NOT_PROFITABLE
+            elif self.validate_full_non_profitable_offer(constraint_bot, constraint_user) == 1:
+                result = NOT_PROFITABLE_FIND_OTHER_PRICE
+                return result
+            elif self.validate_full_non_profitable_offer(constraint_bot, constraint_user) == 2:
+                result = NOT_PROFITABLE_FIND_OTHER_QUANTITY
+                return result
 
         elif self.price is not None and not self.price_in_range:
             result = INVALID_OFFER
