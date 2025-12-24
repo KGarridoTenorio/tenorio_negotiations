@@ -46,10 +46,10 @@
       <p>
         Please negotiate with the
         <strong>
-          {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
+          {% if player.bot_opponent %}AI Agent{% else %}Human{% endif %}
         </strong> Retailer via chat (Write your message in the <strong>"type
-        here..."</strong> box).
-        {% if player.bot_opponent %} *Binding offers can be automatically accepted by the AI Agent.*{% endif %}
+        here..."</strong> box). <br>
+        Note: Binding offers can be automatically accepted by the{% if player.bot_opponent %} AI Agent.{% else %}Human.{% endif %}
         <br> -> You can only send binding offers through "Your current
         proposal":
           <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
@@ -65,8 +65,8 @@
         <strong>
           {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
         </strong> Supplier via chat (Write your message in the <strong>"type
-        here..."</strong> box).
-        {% if player.bot_opponent %} *Binding offers can be automatically accepted by the AI Agent.*{% endif %}
+        here..."</strong> box). <br>
+        Note: Binding offers can be automatically accepted by the{% if player.bot_opponent %} AI Agent.{% else %}Human.{% endif %}
         <br> -> You can only send binding offers through "Your current
         proposal":
           <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
@@ -241,7 +241,7 @@
         <br> -> You can only send binding offers through "Your current
         proposal":
         {% if player.bot_opponent %}
-          <br>     &emsp; &emsp;*Binding offers can be automatically accepted by the AI Agent.*
+          <br>     &emsp; &emsp;Note: Binding offers can be automatically accepted by the AI Agent.
           <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
           &
           Quality offer.
@@ -266,7 +266,7 @@
         <br> -> You can only send binding offers through "Your current
         proposal":
         {% if player.bot_opponent %}
-         <br>     &emsp; &emsp;*Binding offers can be automatically accepted by the AI Agent.*
+         <br>     &emsp; &emsp;Note: Binding offers can be automatically accepted by the AI Agent.
           <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
           &
           Quality offer.

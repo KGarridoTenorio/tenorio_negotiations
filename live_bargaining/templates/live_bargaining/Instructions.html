@@ -18,44 +18,45 @@
         <img src="{% static 'live_bargaining/image/Pellet.jpg' %}"
              alt="Pellet Bag" width="240" align="right">
       </div>
-      <p>
-        You will be negotiating with
-        {% if player.is_single == 1 %}
-          an <strong>AI BOT</strong>
-        {% else %}
-          a <strong>Human</strong>
-        {% endif %}
-        counterpart in the upcoming round.
-      </p>
+    
 
 
       <p>Carefully read the instructions, as you will be financially rewarded for your performance.</p>
       <section>
           <h5>Overview:</h5>
-          <p>In this exercise, you will participate in multiple rounds of negotiations over bags of pellets.</p>
+          <p>In this exercise, you will take the role of an employee at a Retailing or Supplying company.</p>
           <ul>
+              <li>Both companies employ AI Agents and humans to negotiate over bags of pellets.</li>
               <li>The item is produced by the supplying company at a Production Cost (PC) of 3, 4, or 5.</li>
-              <li>This item is sold by the retailer company at a Retail Price (RP) of 10, 11, or 12.</li>
+              <li>This item is sold by the retailer company at a Retail Price (RP) of 11.</li>
               <li>The Retailer and Supplier negotiate via chat on Wholesale Price (w) & Quantity (q).</li>
               <li>PC & RP are common knowledge and are drawn with equal probability in each round.</li>
-              <li>After each negotiation, Demand (D) will be randomly drawn [0, 100] (Equal Probability)</li>
+              <li>After the negotiation, Demand (D) will be randomly drawn [0, 100] (Equal Probability)</li>
               <li>Supplier carries the risk of unsold inventory (any q > Demand will expire).</li>
               {% if player.is_single == 1 %}
-              <li>Both companies employ AI in part of their negotiations with counterpart representatives, and humans in other negotiations.</li>
+              <li>Your manager will choose to delegate an upcoming negotiation to you or an AI Agent.</li>
+              <li>If the manager delegates it to you, you will negotiate with a human or AI counterpart.</li>
+              <li>If the manager delegates it to the AI Agent, you will monitor the system's performance.</li>
               {% else %}
-              <li>Both companies are represented by human participants in all their negotiations.</li>
+              <li>Your manager will choose to delegate an upcoming negotiation to you or an AI Agent.</li>
+              <li>If the manager delegates it to you, you will negotiate with a human or AI counterpart.</li>
+              <li>If the manager delegates it to the AI Agent, you will monitor the system's performance.</li>
               {% endif %}
-              <li>You will be randomly rematched each round with a different counterpart.</li>
           </ul>
       </section>
       <p>
-        For the rest of the experiment, you will play the role of a
-        <strong>{% player.role %}</strong>.
+        For the rest of the experiment, you will be employed by the
+        <strong>{% player.role %}</strong> company. 
       </p>
       <section>
         <h5>Objective:</h5>
         <p>Your goal is to agree on Wholesale Price (w) and Quantity (q) maximizing your profits.</p>
         <h5>Terms of Negotiation:</h5>
+        <ul>
+          <li>Quantity (q) Ranges from 1 to 100 without decimals.</li>
+          <li>Wholesale Price (w) Denoted in euros (€) with two decimals.</li>
+        </ul>
+        <h5>Roles and Profit Calculation:</h5>
         <table class="table table-bordered">
           <tbody>
             <tr>
@@ -72,7 +73,7 @@
             <tr>
               <td>
                 <p><strong>Retailer Profit</strong> = (RP - w) * min(q, D)</p>
-                <p><strong>Example:</strong> Your Retail Price (RP) is 11€, and you just agreed with the supplier on a wholesale price (w) of 7€ and a quantity (q) of 50:</p>
+                <p><strong>Example:</strong> Your Retail Price (RP) is 11€, and you just agreed with the retailer on a wholesale price (w) of 7€ and a quantity (q) of 50:</p>
                 <ul>
                   <li>Demand (D) is 75: (11-7) * min(50, 75) = 200€</li>
                   <li>Demand (D) is 25: (11-7) * min(50, 25) = 100€</li>
@@ -84,51 +85,44 @@
         </table>
     </section>
       <p>
-        <h5>Negotiation Rounds:</h5>
+        <h5>Financial Reward:</h5>
       </p>
       {% if player.is_single == 1 %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            10 rounds; The average profit from the non-practice rounds divided by 50 determines your financial reward.
+            If the negotiation is delegated to you, the profit from the negotiation divided by 50 determines your financial reward.
           </li>
           <li>
-            To warm up, you start with
-            <strong>2 practice</strong> rounds (not counting towards your financial reward). 
+            To warm up, you will have to answer three profit calculation comprehension checks.
           </li>
           <li>
-            You will always negotiate against an AI Bot.
-          </li>
-          <li>
-            The profits from the AI bot will be given to a human deploying the AI system.
+            You may negotiate against another human participant or with an AI Agent counterpart.
           </li>
         </ul>
       {% else %}
         <ul style="list-style-type: '- ';padding-left: 0.5rem; margin-top: -15px">
           <li>
-            10 rounds; The average profit from the non-practice rounds divided by 50 determines your financial reward.
+            If the negotiation is delegated to you, the profit from the negotiation divided by 50 determines your financial reward.
           </li>
           <li>
-            To warm up, you start with
-            <strong>2 practice</strong> rounds (not counting towards your financial reward). 
+            To warm up, you will have to answer three profit calculation comprehension checks.
           </li>
           <li>
-            You will always negotiate against other human participants. 
+            You may negotiate against another human participant or with an AI Agent counterpart.
           </li>
         </ul>
       {% endif %}
       <p>
-        You have 3 minutes per negotiation to reach an agreement.
+        You have 5 minutes to reach an agreement.
         If the time runs out the outcome is an impasse (disagreement), both your profit and your counterpart's profit will be zero. 
       </p>
       {% if player.role == C.ROLE_SUPPLIER %}
         <p>
-          Click <strong> Next </strong> to attempt an instructions comprehension check before starting the first
-          <strong>practice round</strong>.
+          Click <strong> Next </strong> to attempt the instructions comprehension checks before starting.
         </p>
       {% else %}
         <p>
-          Click <strong> Next </strong> to attempt an instructions comprehension check before starting the first
-          <strong>practice round</strong>.
+          Click <strong> Next </strong> to attempt the instructions comprehension checks before starting.
         </p>
       {% endif %}
     </div>
@@ -144,11 +138,13 @@
       counterpart in the upcoming round.<br><br>
     </p>
 
+
     <br><br>
     <p>
       Click <strong>Next</strong> to start the negotiation.
     </p>
   {% endif %}
+
 
   <br>
   <p>
@@ -157,3 +153,4 @@
     </button>
   </p>
 {% endblock %}
+
