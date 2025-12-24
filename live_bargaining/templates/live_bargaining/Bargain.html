@@ -49,6 +49,7 @@
           {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
         </strong> Retailer via chat (Write your message in the <strong>"type
         here..."</strong> box).
+        {% if player.bot_opponent %} *Binding offers can be automatically accepted by the AI Agent.*{% endif %}
         <br> -> You can only send binding offers through "Your current
         proposal":
           <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
@@ -65,6 +66,7 @@
           {% if player.bot_opponent %}AI BOT{% else %}Human{% endif %}
         </strong> Supplier via chat (Write your message in the <strong>"type
         here..."</strong> box).
+        {% if player.bot_opponent %} *Binding offers can be automatically accepted by the AI Agent.*{% endif %}
         <br> -> You can only send binding offers through "Your current
         proposal":
           <br>     &emsp; &emsp;1st Introduce a Wholesale Price and Quantity combination
@@ -221,7 +223,8 @@
     <p>
       Agreements made through the chat are non-binding (not final).
       <br> Only those offers <strong>sent/confirmed through the
-      interface</strong> are binding. <br>
+      interface "Your current
+      proposal"</strong> are binding. <br>
       Once you reach an agreement, use the <strong>"CONFIRM"</strong> button to
       <strong> seal the deal </strong> (finish the negotiation).
       <br>
@@ -238,6 +241,7 @@
         <br> -> You can only send binding offers through "Your current
         proposal":
         {% if player.bot_opponent %}
+          <br>     &emsp; &emsp;*Binding offers can be automatically accepted by the AI Agent.*
           <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
           &
           Quality offer.
@@ -262,6 +266,7 @@
         <br> -> You can only send binding offers through "Your current
         proposal":
         {% if player.bot_opponent %}
+         <br>     &emsp; &emsp;*Binding offers can be automatically accepted by the AI Agent.*
           <br>     &emsp; &emsp;1st Wait until the Bot asks you to share a Price
           &
           Quality offer.
