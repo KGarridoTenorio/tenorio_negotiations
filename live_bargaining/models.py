@@ -206,7 +206,7 @@ class Player(BasePlayer):
     channel_id = models.StringField(max_length=100)
     is_single = models.BooleanField()
     comprehension_count = models.IntegerField(initial=0)
-    comprehension_check = models.IntegerField(blank=True, min=-100)
+    comprehension_check = models.IntegerField(blank=True, min=-1000)
 
     price_proposed = models.FloatField()
     price_accepted = models.FloatField()

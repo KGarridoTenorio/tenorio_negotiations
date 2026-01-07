@@ -151,58 +151,67 @@ class ComprehensionCheck(Page):
 
     @staticmethod
     def error_message(player: Player, values):
-        answer = values['comprehension_check']
-        market_price = player.participant.vars['market_price']
-        production_cost = player.participant.vars['production_cost']
-        price = player.participant.vars['price']
-        quality = player.participant.vars['quality']
+        answer = values.get('comprehension_check')
 
-        # For the comprehension test, demand is fixed at 50
+        market_price = player.participant.vars['market_price']      # RP
+        production_cost = player.participant.vars['production_cost']  # PC
+        price = player.participant.vars['price']                    # w
+        quality = player.participant.vars['quality']                # q
+
         fixed_demand = 50
+
         try:
             answer_float = float(answer)
-        except Exception:
+        except (TypeError, ValueError):
             answer_float = None
 
+        quantity_sold = min(quality, fixed_demand)
+
         if player.role == C.ROLE_BUYER:
-            quantity_sold = min(quality, fixed_demand)
-            profit =(market_price - price) * quantity_sold
+            # Retailer Profit = (RP - w) * min(q, D)
+            profit = (market_price - price) * quantity_sold
+
             if answer_float is not None and abs(answer_float - profit) < 0.01:
                 return None
-            formula = f"({market_price} - {price}) * {fixed_demand} = {profit:.2f}"
+
+            formula = f"({market_price} - {price}) * {quantity_sold} = {profit:.2f}"
             explanation = (
-                f"Unfortunately your answer is incorrect!<br><br>"
+                "Unfortunately your answer is incorrect!<br><br>"
                 f"Retail Price: {market_price}<br>"
                 f"Agreed Wholesale Price: {price}<br>"
                 f"Agreed Quantity: {quality}<br>"
                 f"The Random Demand from the market: {fixed_demand}<br>"
                 f"Your profit (as a {player.role}) is calculated as:<br>"
-                f"<b>Profit = (Retail Price - Wholesale Price) * Quantity Sold</b><br>"
+                "<b>Profit = (Retail Price - Wholesale Price) * Quantity Sold</b><br>"
                 f"{formula}<br>"
-                f"Please try again with the new combination."
+                "Please try again with the new combination."
             )
             player.comprehension_count += 1
             return explanation
+
         else:
-            quantity_sold = min(quality, fixed_demand)
-            unsold_quantity = min(fixed_demand, quality)
-            profit = ((price - production_cost) * (quantity_sold)) + (production_cost * unsold_quantity)
+            # Supplier Profit = w * min(q, D) - PC * q
+            # (Supplier pays production cost for all q units produced; unsold units have zero value)
+            profit = price * quantity_sold - production_cost * quality
+
             if answer_float is not None and abs(answer_float - profit) < 0.01:
                 return None
-            formula = f"({price} * {fixed_demand}) - ({production_cost} * {fixed_demand}) = {profit:.2f}"
+
+            formula = f"({price} * {quantity_sold}) - ({production_cost} * {quality}) = {profit:.2f}"
             explanation = (
-                f"Unfortunately your answer is incorrect!<br><br>"
+                "Unfortunately your answer is incorrect!<br><br>"
                 f"Production Cost: {production_cost}<br>"
                 f"Agreed Wholesale Price: {price}<br>"
                 f"Agreed Quantity: {quality}<br>"
                 f"The Random Demand from the market: {fixed_demand}<br>"
                 f"Your profit (as a {player.role}) is calculated as:<br>"
-                f"<b>Profit = ((Wholesale Price - Production Cost) * (Quantity Sold)) + (Production Cost * Unsold Quantity)</b><br>"
+                "<b>Profit = (Wholesale Price * Quantity Sold) - (Production Cost * Quantity)</b><br>"
                 f"{formula}<br>"
-                f"Please try again with the new combination."
+                "Please try again with the new combination."
             )
             player.comprehension_count += 1
             return explanation
+
 
 class Bargain(Page):
     @staticmethod
